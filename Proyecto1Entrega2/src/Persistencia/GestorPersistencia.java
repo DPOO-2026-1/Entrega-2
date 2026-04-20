@@ -1,8 +1,5 @@
 package Proyecto1Entrega2.src.Persistencia;
 
-// ==========================================
-// TODOS LOS IMPORTS NECESARIOS
-// ==========================================
 import Proyecto1Entrega2.src.ModuloVenta.Venta;
 import Proyecto1Entrega2.src.Usuario.Usuario;
 import Proyecto1Entrega2.src.Usuario.Cliente;
@@ -25,7 +22,6 @@ import java.util.List;
 
 public class GestorPersistencia {
     
-    // Recuerda: Esta ruta DEBE estar fuera de la carpeta src (ej. "./datos/")
     private String rutaArchivos; 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
 
@@ -33,20 +29,17 @@ public class GestorPersistencia {
         this.rutaArchivos = rutaArchivos;
     }
 
-    // ====================================================================
-    // 1. EL ORQUESTADOR: Cargar y Guardar TODO (Ya implementado)
-    // ====================================================================
+    // 1. Cargar y Guardar
 
     public Cafeteria cargarTodo() {
         Cafeteria cafe = Cafeteria.getInstance(); 
         
-        // ORDEN CRÍTICO: Primero los independientes, luego los dependientes
+        // Primero los independientes, luego los dependientes
         List<Usuario> usuarios = cargarUsuarios();
         List<Juego> juegos = cargarJuegos();
         List<Prestamo> prestamos = cargarPrestamos(usuarios, juegos);
         List<Venta> ventas = cargarVentas(usuarios);
         
-        // Aplicando los sets que estaban comentados directamente al facade Cafeteria
         cafe.setUsuarios(usuarios);
         cafe.setJuegos(juegos);
         cafe.setPrestamos(prestamos);
@@ -56,16 +49,13 @@ public class GestorPersistencia {
     }
 
     public void guardarTodo(Cafeteria cafe) {
-        // Aplicando los gets que estaban comentados
         guardarUsuarios(cafe.getUsuarios());
         guardarJuegos(cafe.getJuegos());
         guardarPrestamos(cafe.getPrestamos());
         guardarVentas(cafe.getVentas());
     }
 
-    // ====================================================================
     // 2. MÉTODOS DE USUARIOS
-    // ====================================================================
 
     public List<Usuario> cargarUsuarios() {
         List<Usuario> usuarios = new ArrayList<>();
@@ -80,11 +70,18 @@ public class GestorPersistencia {
                 String login = p[1];
                 String password = p[2];
                 String nombre = p[3];
-
-                if (tipo.equals("CLIENTE")) usuarios.add(new Cliente(login, password, nombre));
-                else if (tipo.equals("ADMINISTRADOR")) usuarios.add(new Administrador(login, password, nombre));
-                else if (tipo.equals("MESERO")) usuarios.add(new Mesero(login, password, nombre));
-                else if (tipo.equals("COCINERO")) usuarios.add(new Cocinero(login, password, nombre));
+                String extra = p[4]; 
+                
+                if (tipo.equals("CLIENTE")) {
+                    int puntos = Integer.parseInt(extra);
+                    usuarios.add(new Cliente(login, password, nombre, puntos));
+                } else if (tipo.equals("MESERO")) {
+                    usuarios.add(new Mesero(login, password, nombre, extra)); // extra es el codigoDescuento
+                } else if (tipo.equals("COCINERO")) {
+                    usuarios.add(new Cocinero(login, password, nombre, extra));
+                } else if (tipo.equals("ADMINISTRADOR")) {
+                    usuarios.add(new Administrador(login, password, nombre));
+                }
             }
         } catch (Exception e) {
             System.err.println("Error leyendo usuarios: " + e.getMessage());
@@ -98,17 +95,25 @@ public class GestorPersistencia {
 
         try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
             for (Usuario u : lista) {
-                String tipo = u.getClass().getSimpleName().toUpperCase(); 
-                pw.println(tipo + ";" + u.getLogin() + ";" + u.getPassword() + ";" + u.getNombre());
+                String tipo = u.getClass().getSimpleName().toUpperCase();
+                String extra = "";
+
+                if (u instanceof Empleado) {
+                    // Casteamos a Empleado para acceder al código
+                    extra = ((Empleado) u).getCodigoDescuento();
+                } else if (u instanceof Cliente) {
+                    // Casteamos a Cliente para los puntos
+                    extra = String.valueOf(((Cliente) u).getPuntosFidelidad());
+                }
+
+                // Formato: TIPO;login;password;nombre;extra
+                pw.println(tipo + ";" + u.getLogin() + ";" + u.getPassword() + ";" + u.getNombre() + ";" + extra);
             }
         } catch (Exception e) {
             System.err.println("Error guardando usuarios: " + e.getMessage());
         }
     }
-
-    // ====================================================================
     // 3. MÉTODOS DE JUEGOS
-    // ====================================================================
 
     public List<Juego> cargarJuegos() {
         List<Juego> juegos = new ArrayList<>();
@@ -152,9 +157,7 @@ public class GestorPersistencia {
         }
     }
 
-    // ====================================================================
     // 4. MÉTODOS DE PRÉSTAMOS
-    // ====================================================================
 
     public List<Prestamo> cargarPrestamos(List<Usuario> usuariosTotales, List<Juego> juegosTotales) {
         List<Prestamo> prestamos = new ArrayList<>();
@@ -212,9 +215,7 @@ public class GestorPersistencia {
         }
     }
 
-    // ====================================================================
     // 5. MÉTODOS DE VENTAS
-    // ====================================================================
 
     public List<Venta> cargarVentas(List<Usuario> usuariosTotales) {
         List<Venta> ventas = new ArrayList<>();
