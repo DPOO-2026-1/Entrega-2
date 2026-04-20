@@ -1,4 +1,8 @@
-package World;
+package Proyecto1Entrega2.src.World;
+
+import Proyecto1Entrega2.src.ModuloVenta.CopiaVenta;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Juego {
 	private String nombre;
@@ -9,8 +13,24 @@ public class Juego {
 	private int edadMinima;
 	private String categoria;
 	private boolean esDificil;
-	private CopiaPrestamo[] copiasPrestamos;
+	private List<CopiaPrestamo> copiasParaPrestamo; 
+    private List<CopiaVenta> copiasParaVenta;
 	
+    public Juego(String nombre, int anioPublicacion, String empresaMatriz, int minJugadores, 
+            int maxJugadores, int edadMinima, String categoria, boolean esDificil) {
+    this.nombre = nombre;
+    this.anioPublicacion = anioPublicacion;
+    this.empresaMatriz = empresaMatriz;
+    this.minJugadores = minJugadores;
+    this.maxJugadores = maxJugadores;
+    this.edadMinima = edadMinima;
+    this.categoria = categoria;
+    this.esDificil = esDificil;
+   
+    this.copiasParaPrestamo = new ArrayList<>();
+    this.copiasParaVenta = new ArrayList<>();
+    }
+    
 	public CopiaPrestamo getCopiaDisponible() {
 		if (copiasPrestamos != null) {
 			for (CopiaPrestamo copia : copiasPrestamos) {
@@ -34,19 +54,31 @@ public class Juego {
 		return n >= this.minJugadores && n <= this.maxJugadores;
 	}
 	
+	public String getCategoria() {
+        return this.categoria;
+    }
+	
 	public boolean estaDisponibleParaVenta() {
-		//REVISAR CÓMO LO HAYAMOS IMPLEMENTADO
-		if (copiasPrestamos != null) {
-            for (CopiaPrestamo copia : copiasPrestamos) {
-                if (copia != null && copia.estaDisponibleParaVenta()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-	}
+        return !this.copiasParaVenta.isEmpty();
+    }
 	
 	public String getCategoria() {
 		return this.categoria;
 	}
+	
+	public void agregarCopiaPrestamo(CopiaPrestamo copia) { 
+        this.copiasParaPrestamo.add(copia); 
+    }
+    
+    public void agregarCopiaVenta(CopiaVenta copia) { 
+        this.copiasParaVenta.add(copia); 
+    }
+
+    public String getNombre() { return nombre; }
+    public int getAnioPublicacion() { return anioPublicacion; }
+    public String getEmpresaMatriz() { return empresaMatriz; }
+    public int getMinJugadores() { return minJugadores; }
+    public int getMaxJugadores() { return maxJugadores; }
+    public int getEdadMinima() { return edadMinima; }
+    public boolean isEsDificil() { return esDificil; }
 }

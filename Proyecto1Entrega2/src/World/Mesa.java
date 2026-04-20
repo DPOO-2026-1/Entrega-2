@@ -12,6 +12,17 @@ public class Mesa {
 	private Cliente ocupadaPor;
 	private boolean hayBebidaCaliente;
 	
+	public Mesa(int idMesa, int capacidadMax) {
+        this.idMesa = idMesa;
+        this.capacidadMax = capacidadMax;
+        this.ocupada = false;
+        this.cantPersonasActuales = 0;
+        this.hayNinos = false;
+        this.hayJovenes = false;
+        this.hayBebidaCaliente = false;
+        this.ocupadaPor = null;
+    }
+	
 	public void ocupar(int personas, boolean hayNinos, boolean hayJovenes, Cliente cliente) {
 		if (!ocupada && personas <= capacidadMax) {
 			this.ocupada = true;
@@ -23,13 +34,14 @@ public class Mesa {
 		else {
 			throw new IllegalStateException("La mesa no está disponible o excede la capacidad");
 		}
-	}
+	}	
 	
 	public void liberar() {
 		this.ocupada = false;
 		this.cantPersonasActuales = 0;
 		this.hayNinos = false;
         this.hayJovenes = false;
+        this.hayBebidaCaliente = false;
         this.ocupadaPor = null;
 	}
 	
@@ -51,4 +63,26 @@ public class Mesa {
 	public boolean puedeRecibirJuegoAccion() {
 		return !hayBebidaCaliente;
 	}
+	
+	public void agregarPrestamo(Prestamo p) {
+        this.prestamosActivos.add(p);
+    }
+    
+    // Getters y setters de la nueva relación
+    public Cliente getOcupadaPor() { 
+    	return ocupadaPor; 
+    }
+    public void setOcupadaPor(Cliente cliente) { 
+    	this.ocupadaPor = cliente; 
+    }
+
+    public int getIdMesa() { 
+    	return idMesa; 
+    }
+    public int getCapacidadMax() { 
+    	return capacidadMax; 
+    }
+    public void setHayBebidaCaliente(boolean hayBebidaCaliente) { 
+    	this.hayBebidaCaliente = hayBebidaCaliente; 
+    }
 }
