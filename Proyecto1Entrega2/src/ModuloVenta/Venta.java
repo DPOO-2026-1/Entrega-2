@@ -16,30 +16,85 @@ public class Venta {
 	private ItemVenta[] itemsVenta;
 	
 	public double calcularSubtotal() {
-		//TODO
-	}
+		double suma = 0;
+        if (itemsVenta != null) {
+            for (ItemVenta item : itemsVenta) {
+                suma += item.getSubtotalItem();
+            }
+        }
+        this.subtotal = suma;
+        return subtotal;
+    }
 	
 	public double calcularImpuestosTotales() {
-		//TODO
-	}
+		double suma = 0;
+        if (itemsVenta != null) {
+            for (ItemVenta item : itemsVenta) {
+                suma += item.calcularImpuestoItem();
+            }
+        }	
+        this.impuestos = suma;
+        return impuestos;
+    }
 	
 	public double calcularPropina() {
-		//TODO
+		return propina //cómo sacábamos la propina? y si el cliente no quiere dar?
 	}
 	
 	public void setPropina(double porcentaje) {
-		//TODO
+		this.propina = subtotal * porcentaje;
 	}
 	
 	public double calcularTotal() {
-		//TODO
+		double descuento = subtotal * (descuentoAplicado / 100.0); //dónde definimos si es 10 o 20%? depende del cliente o mesero
+        this.total = subtotal - descuento + impuestos + propina;
+        return total;
 	}
 	
 	public int calcularPuntosGenerados() {
-		//TODO
+		this.puntosGenerados = (int)(total * 0.01);
+        return puntosGenerados;
 	}
 	
 	public void aplicarDescuento(String codigo) {
-		//TODO
-	}
+		if (codigo.equalsIgnoreCase("EMPLEADO")) {
+            this.descuentoAplicado = 20;
+        } else if (codigo.equalsIgnoreCase("CLIENTE")) {
+            this.descuentoAplicado = 10;
+        } else {
+            this.descuentoAplicado = 0;
+        }
+    } //revisar este método, está mal implementado
+
+	public int getIdVenta() {
+        return idVenta;
+    }
+
+    public void setIdVenta(int idVenta) {
+        this.idVenta = idVenta;
+    }
+
+    public LocalDateTime getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDateTime fecha) {
+        this.fecha = fecha;
+    }
+
+	public Usuario getRealizadaPor() {
+        return realizadaPor;
+    }
+
+    public void setRealizadaPor(Usuario realizadaPor) {
+        this.realizadaPor = realizadaPor;
+    }
+
+    public ItemVenta[] getItemsVenta() {
+        return itemsVenta;
+    }
+
+    public void setItemsVenta(ItemVenta[] itemsVenta) {
+        this.itemsVenta = itemsVenta;
+    }
 }

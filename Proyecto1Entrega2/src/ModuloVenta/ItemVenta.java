@@ -3,17 +3,15 @@ package Proyecto1Entrega2.src.ModuloVenta;
 public class ItemVenta {
 	private int cantidad;
 	private double precioUnitario;
-	private double descuentoAplicado;
 	private ProductoVendible producto;
 	
 	public double calcularImpuestoItem() {
-		//TODO
+		double subtotal = getSubtotalItem();
+        return subtotal * producto.getTasaImpuesto();
 	}
 	
 	public double getSubtotalItem() {
-		double bruto = precioUnitario * cantidad;
-        double descuento = bruto * (descuentoAplicado / 100); //descuentoAplicado es un porcentaje? o ya es el valor?
-        return bruto - descuento;
+		return precioUnitario * cantidad;
 	}
 
 	public int getCantidad() {
