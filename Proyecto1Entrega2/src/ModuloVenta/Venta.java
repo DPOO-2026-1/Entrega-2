@@ -1,7 +1,7 @@
-package Proyecto1Entrega2.src.ModuloVenta;
+package ModuloVenta;
 import java.time.*;
 
-import Proyecto1Entrega2.src.World.Usuario.Usuario;
+import Usuario.Usuario;
 
 public class Venta {
 	private int idVenta;
@@ -38,7 +38,7 @@ public class Venta {
     }
 	
 	public double calcularPropina() {
-		return propina //cómo sacábamos la propina? y si el cliente no quiere dar?
+		return propina; //cómo sacábamos la propina? y si el cliente no quiere dar?
 	}
 	
 	public void setPropina(double porcentaje) {

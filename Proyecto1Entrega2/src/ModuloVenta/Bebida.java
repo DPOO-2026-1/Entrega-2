@@ -1,4 +1,4 @@
-package Proyecto1Entrega2.src.ModuloVenta;
+package ModuloVenta;
 
 public class Bebida extends ProductoComestible{
 	private boolean esCaliente;

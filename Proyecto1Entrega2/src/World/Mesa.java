@@ -1,6 +1,6 @@
 package World;
 
-import Proyecto1Entrega2.src.World.Usuario.Cliente;
+import Usuario.Cliente;
 
 public class Mesa {
 	private int idMesa;

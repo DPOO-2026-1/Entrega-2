@@ -1,4 +1,4 @@
-package Proyecto1Entrega2.src.ModuloVenta;
+package ModuloVenta;
 
 public class ItemVenta {
 	private int cantidad;
@@ -28,14 +28,6 @@ public class ItemVenta {
 
     public void setPrecioUnitario(double precioUnitario) {
         this.precioUnitario = precioUnitario;
-    }
-
-    public double getDescuentoAplicado() {
-        return descuentoAplicado;
-    }
-
-	public void setDescuentoAplicado(double descuentoAplicado) {
-        this.descuentoAplicado = descuentoAplicado;
     }
 
     public ProductoVendible getProducto() {

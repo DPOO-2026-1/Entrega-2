@@ -35,10 +35,9 @@ public class Juego {
 	}
 	
 	public boolean estaDisponibleParaVenta() {
-		//REVISAR CÓMO LO HAYAMOS IMPLEMENTADO
 		if (copiasPrestamos != null) {
             for (CopiaPrestamo copia : copiasPrestamos) {
-                if (copia != null && copia.estaDisponibleParaVenta()) {
+                if (copia != null && copia.estaDisponible()) {
                     return true;
                 }
             }
