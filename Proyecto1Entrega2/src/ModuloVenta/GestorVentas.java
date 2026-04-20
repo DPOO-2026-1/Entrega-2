@@ -1,6 +1,8 @@
 package Proyecto1Entrega2.src.ModuloVenta;
+
 import java.time.*;
 import java.util.List;
+import java.util.stream.Collectors;
 import Proyecto1Entrega2.src.Persistencia.GestorPersistencia;
 
 public class GestorVentas{
@@ -11,22 +13,25 @@ public class GestorVentas{
     }
 
     public void registrarVenta(Venta venta) {
+        // Obtenemos la lista actual, agregamos la nueva y sobreescribimos el archivo
         List<Venta> ventas = gestorPersistencia.cargarVentas(venta.getRealizadaPor().getCafeteria().getUsuarios());
         ventas.add(venta);
         gestorPersistencia.guardarVentas(ventas);
     }
 
-    public Venta[] getVentas(LocalDateTime inicio, LocalDateTime fin) {
-        public List<Venta> getVentas(LocalDateTime inicio, LocalDateTime fin) {
-        List<Venta> todas = gestorPersistencia.cargarVentas(null);
+    public List<Venta> getVentas(LocalDateTime inicio, LocalDateTime fin, List<Usuario> usuariosDelSistema) {
+        // Se necesita pasar la lista de usuarios para que el gestor pueda armar las referencias
+        List<Venta> todas = gestorPersistencia.cargarVentas(usuariosDelSistema);
+        
         return todas.stream()
                 .filter(v -> v.getFecha() != null &&
                         (v.getFecha().isEqual(inicio) || v.getFecha().isAfter(inicio)) &&
                         (v.getFecha().isEqual(fin) || v.getFecha().isBefore(fin)))
-                .toList();
+                .collect(Collectors.toList());
     }
     
     public String generarInformeVentas(LocalDateTime inicio, LocalDateTime fin, String granularidad){
         //TODO
+        return "";
     }
 }
