@@ -1,0 +1,47 @@
+package World;
+
+public class Cafeteria {
+	private int capacidadMax;
+	private int cantPersonasActuales;
+	private String nombreEstablecimiento;
+	private Mesa mesas;
+	private Juego juegos;
+	private Usuario users;
+	private ProductoComestible[] productosComestibles;
+	
+	public Cafeteria getInstance() {
+		//TODO
+	}
+	
+	public Usuario login(String login, String pass) {
+		//TODO
+	}
+	
+	public boolean hayCapacidad(int nPersonas) {
+		//TODO
+	}
+	
+	public boolean registrarIngreso(int nPersonas) {
+		//TODO
+	}
+	
+	public void registrarSalida(int nPersonas) {
+		//TODO
+	}
+	
+	public Juego buscarJuego(String nombre) {
+		//TODO
+	}
+	
+	public Mesa getMesaDisponible(int personas) {
+		//TODO
+	}
+	
+	public validarMinimoEmpleados(DiaSemana dia) {
+		//TODO
+	}
+	
+	public String[] consultarAlergenos(Pasteleria p) {
+		//TODO
+	}
+}
