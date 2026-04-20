@@ -8,6 +8,7 @@ public class Cafeteria {
 	private Juego juegos;
 	private Usuario users;
 	private ProductoComestible[] productosComestibles;
+	private Prestamo[] historialPrestamos;
 	
 	public Cafeteria getInstance() {
 		//TODO
@@ -44,4 +45,10 @@ public class Cafeteria {
 	public String[] consultarAlergenos(Pasteleria p) {
 		//TODO
 	}
+
+	public void crearUsuario(String login, String pass, String nombre){
+		//TODO
+	}
+
+	public void crearPrestamo(...)
 }

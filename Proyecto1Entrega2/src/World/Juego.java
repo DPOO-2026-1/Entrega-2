@@ -12,7 +12,14 @@ public class Juego {
 	private CopiaPrestamo[] copiasPrestamos;
 	
 	public CopiaPrestamo getCopiaDisponible() {
-		
+		if (copiasPrestamos != null) {
+			for (CopiaPrestamo copia : copiasPrestamos) {
+                if (copia != null && copia.estaDisponible()) {
+                    return copia;
+                }
+            }
+		}
+		return null;
 	}
 	
 	public CopiaPrestamo[] getCopiasPrestamo() {
@@ -20,19 +27,23 @@ public class Juego {
 	}
 	
 	public boolean esAptoParaEdad(int edadMinimaEnMesa) {
-		//TODO
+		return edadMinimaEnMesa >= this.edadMinima;
 	}
 	
 	public boolean soportaNPersonas(int n) {
-		//TODO
+		return n >= this.minJugadores && n <= this.maxJugadores;
 	}
 	
 	public boolean estaDisponibleParaVenta() {
-		//TODO
-	}
-	
-	public void incrementarContadorPrestamos() {
-		//TODO
+		//REVISAR CÓMO LO HAYAMOS IMPLEMENTADO
+		if (copiasPrestamos != null) {
+            for (CopiaPrestamo copia : copiasPrestamos) {
+                if (copia != null && copia.estaDisponibleParaVenta()) {
+                    return true;
+                }
+            }
+        }
+        return false;
 	}
 	
 	public String getCategoria() {

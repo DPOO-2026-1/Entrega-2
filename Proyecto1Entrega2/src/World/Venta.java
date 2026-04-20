@@ -3,7 +3,7 @@ import java.time.*;
 
 public class Venta {
 	private int idVenta;
-//	private Date fecha;
+	private LocalDateTime fecha;
 	private double subtotal;
 	private double impuestos;
 	private double propina;

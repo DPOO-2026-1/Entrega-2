@@ -4,24 +4,43 @@ public class CopiaPrestamo {
 	private String idUnico;
 	private String estado;
 	private boolean estaDisponible;
+	private int vecesPrestado;
 	
 	public void prestar() {
-		//TODO
+		if (estaDisponible) {
+            this.estaDisponible = false;
+        } else {
+            throw new IllegalStateException("La copia ya está prestada o no disponible.");
+        }
 	}
 	
 	public void devolver() {
-		//TODO
+		this.estaDisponible = true;
 	}
 	
 	public void marcarDesaparecida() {
-		//TODO
+		this.estaDisponible = false;
+        this.estado = "Desaparecida";
 	}
 	
 	public void reparar() {
-		//TODO
+		this.estaDisponible = true;
+        this.estado = "Reparada";
 	}
 	
 	public boolean estaDisponible() {
-		//TODO
+		return estaDisponible;
 	}
+
+	public void incrementarContadorPrestamos() {
+		this.vecesPrestado++;
+	}
+
+	public String getIdUnico() {
+        return idUnico;
+    }
+
+	public String getEstado() {
+        return estado;
+    }
 }

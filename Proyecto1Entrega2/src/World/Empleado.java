@@ -29,10 +29,6 @@ public abstract class Empleado extends Usuario{
 		//TODO
 	}
 	
-	pubic String generarCodigoDescuento(boolean esParaTercero) {
-		//TODO
-	}
-	
 	public DiaTurno[] consultarDiasAsignados() {
 		//TODO
 		return diasAsignados;
