@@ -1,14 +1,14 @@
-package Proyecto1Entrega2.src.Persistencia;
+package Persistencia;
 
-import Proyecto1Entrega2.src.ModuloVenta.Venta;
-import Proyecto1Entrega2.src.Usuario.Usuario;
-import Proyecto1Entrega2.src.Usuario.Cliente;
-import Proyecto1Entrega2.src.Usuario.Administrador;
-import Proyecto1Entrega2.src.Usuario.Mesero;
-import Proyecto1Entrega2.src.Usuario.Cocinero;
-import Proyecto1Entrega2.src.World.Cafeteria;
-import Proyecto1Entrega2.src.World.Juego;
-import Proyecto1Entrega2.src.World.Prestamo;
+import ModuloVenta.Venta;
+import Usuario.Usuario;
+import Usuario.Cliente;
+import Usuario.Administrador;
+import Usuario.Mesero;
+import Usuario.Cocinero;
+import World.Cafeteria;
+import World.Juego;
+import World.Prestamo;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -31,17 +31,15 @@ public class Juego {
     this.copiasParaVenta = new ArrayList<>();
     }
     
-	public CopiaPrestamo getCopiaDisponible() {
-		if (copiasPrestamos != null) {
-			for (CopiaPrestamo copia : copiasPrestamos) {
-                if (copia != null && copia.estaDisponible()) {
-                    return copia;
-                }
+    public CopiaPrestamo getCopiaDisponible() {
+        for (CopiaPrestamo copia : copiasParaPrestamo) {
+            if (copia.estaDisponible()) {
+                return copia;
             }
-		}
-		return null;
-	}
-	
+        }
+        return null; // Retorna null si todas las copias están prestadas
+    }
+    
 	public CopiaPrestamo[] getCopiasPrestamo() {
 		return copiasPrestamos;
 	}
@@ -61,7 +59,15 @@ public class Juego {
 	public boolean estaDisponibleParaVenta() {
         return !this.copiasParaVenta.isEmpty();
     }
-	
+		if (copiasPrestamos != null) {
+            for (CopiaPrestamo copia : copiasPrestamos) {
+                if (copia != null && copia.estaDisponible()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+	}
 	public String getCategoria() {
 		return this.categoria;
 	}

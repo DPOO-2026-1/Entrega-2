@@ -1,4 +1,4 @@
-package Proyecto1Entrega2.src.ModuloVenta;
+package ModuloVenta;
 
 public interface ProductoVendible {
 	public double getTasaImpuesto();

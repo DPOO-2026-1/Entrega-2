@@ -1,4 +1,4 @@
-package Proyecto1Entrega2.src.World.Usuario;
+package Usuario;
 
 public abstract class Empleado extends Usuario{
 	private String codigoDesuento;
@@ -26,11 +26,10 @@ public abstract class Empleado extends Usuario{
 	}
 	
 	public boolean estaEnTurno() {
-		//TODO
+		return estaDeTurno;
 	}
 	
 	public DiaTurno[] consultarDiasAsignados() {
-		//TODO
 		return diasAsignados;
 	}
 }
