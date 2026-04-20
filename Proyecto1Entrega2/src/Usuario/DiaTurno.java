@@ -1,32 +1,33 @@
-package Proyecto1Entrega2.src.World.Usuario;
+package World;
 
 public class DiaTurno {
-	private DiaSemana dia;
-	private Mesero[] meseros;
-	private Cocinero cocinero;
-	private boolean estaAprobado;
-	
-	public DiaSemana getDia() {
-		//TODO
-	}
-	
-	public boolean estaAsignado() {
-		//TODO
-	}
-	
-	public void asignar() {
-		//TODO
-	}
-	
-	public void liberar() {
-		//TODO
-	}
-	
-	public boolean isAprobado() {
-		//TODO
-	}
-	
-	public void setAprobado(boolean estado) {
-		//TODO
-	}
+    private DiaSemana dia;
+    private boolean estaAprobado;
+
+    public DiaTurno(DiaSemana dia, boolean estaAprobado) {
+        this.dia = dia;
+        this.estaAprobado = estaAprobado;
+    }
+
+    public DiaSemana getDia() {
+        return dia;
+    }
+
+    public boolean estaAsignado() {
+        return true; 
+    }
+
+    public void asignar() {
+    }
+
+    public void liberar() {
+    }
+
+    public boolean isAprobado() {
+        return estaAprobado;
+    }
+
+    public void setAprobado(boolean estado) {
+        this.estaAprobado = estado;
+    }
 }
