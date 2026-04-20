@@ -4,11 +4,19 @@ import java.util.Map;
 public class Semana {
 	private Map<DiaSemana, DiaTurno> dias;
 	
-	public Turno getTurnoDelDia(DiaSemana dia) {
-		//TODO
+	public Semana(Map<DiaSemana, DiaTurno> dias) {
+        this.dias = dias;
+    }
+	
+	public DiaTurno getTurnoDelDia(DiaSemana dia) {
+		return dias.get(dia);
 	}
 	
 	public void actualizarTurno(DiaSemana dia, DiaTurno nuevoTurno) {
-		//TODO
-	}
+        dias.put(dia, nuevoTurno);
+    }
+
+	public Map<DiaSemana, DiaTurno> getDias() {
+        return dias;
+    }
 }
