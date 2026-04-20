@@ -1,4 +1,4 @@
-package World;
+package Proyecto1Entrega2.src.World.Usuario;
 
 public abstract class Empleado extends Usuario{
 	private String codigoDesuento;

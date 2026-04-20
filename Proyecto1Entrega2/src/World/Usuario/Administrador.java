@@ -1,4 +1,4 @@
-package World;
+package Proyecto1Entrega2.src.World.Usuario;
 
 public class Administrador extends Usuario{
 	public void aprobarSolicitudTurno(SolicitudTurno s) {

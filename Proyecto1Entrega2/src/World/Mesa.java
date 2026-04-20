@@ -1,5 +1,7 @@
 package World;
 
+import Proyecto1Entrega2.src.World.Usuario.Cliente;
+
 public class Mesa {
 	private int idMesa;
 	private int capacidadMax;

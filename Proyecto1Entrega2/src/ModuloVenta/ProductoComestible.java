@@ -1,4 +1,4 @@
-package World;
+package Proyecto1Entrega2.src.ModuloVenta;
 
 public abstract class ProductoComestible implements ProductoVendible {
 	private String nombre;

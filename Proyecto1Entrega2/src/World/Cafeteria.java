@@ -1,5 +1,10 @@
 package World;
 
+import Proyecto1Entrega2.src.ModuloVenta.Pasteleria;
+import Proyecto1Entrega2.src.ModuloVenta.ProductoComestible;
+import Proyecto1Entrega2.src.World.Usuario.DiaSemana;
+import Proyecto1Entrega2.src.World.Usuario.Usuario;
+
 public class Cafeteria {
 	private int capacidadMax;
 	private int cantPersonasActuales;

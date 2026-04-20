@@ -1,4 +1,4 @@
-package World;
+package Proyecto1Entrega2.src.ModuloVenta;
 
 public class CopiaVenta extends Juego implements ProductoVendible{
 	private String idUnico;

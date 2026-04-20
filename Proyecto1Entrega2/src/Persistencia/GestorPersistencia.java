@@ -1,4 +1,7 @@
-package World;
+package Proyecto1Entrega2.src.Persistencia;
+
+import Proyecto1Entrega2.src.ModuloVenta.Venta;
+import Proyecto1Entrega2.src.World.Usuario.Usuario;
 
 public class GestorPersistencia {
 	private String rutaArchivos;
