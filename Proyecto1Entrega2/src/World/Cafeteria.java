@@ -14,6 +14,7 @@ public class Cafeteria {
 	private Usuario users;
 	private ProductoComestible[] productosComestibles;
 	private Prestamo[] historialPrestamos;
+	private GestorVentras gestorVentas;
 	
 	public Cafeteria getInstance() {
 		//TODO
