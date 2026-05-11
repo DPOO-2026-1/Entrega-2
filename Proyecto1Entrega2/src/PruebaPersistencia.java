@@ -1,29 +1,47 @@
-import Usuario.*;
-import java.io.*;
-import java.util.List;
-
+import Usuario.GestorUsuarios;
+import Usuario.Usuario;
+import World.Cafeteria;
+import ModuloVenta.GestorVentas;
+import Persistencia.GestorPersistencia;
+import java.io.File;
+	
 public class PruebaPersistencia {
-    private static final String FILE_PATH = "data/usuarios.txt";
+    private static final String DATA_DIR = "data/";
 
     public static void main(String[] args) {
-        new File("data").mkdirs(); 
-
+        new File(DATA_DIR).mkdirs(); 
+        
         System.out.println("=== INICIO PRUEBA 1: PERSISTENCIA ===");
         
-        GestorUsuarios gestor = new GestorUsuarios();
+        GestorPersistencia gp = new GestorPersistencia(DATA_DIR);
+        GestorVentas gv = new GestorVentas(gp);
+        Cafeteria cafe = Cafeteria.getInstance(50, "Cafe Central", null, gv);
+        
+        // Cargar todo (si existiera algo previo)
+        gp.cargarTodo();
+        
+        GestorUsuarios gestor = new GestorUsuarios(gp, cafe);
+        cafe.setGestorUsuarios(gestor);
+
         System.out.println("Registrando usuario Santi123...");
-        gestor.registrarCliente("Santi123", "clave1", "Santiago Escobar", false, false);
+        try {
+            gestor.registrarCliente("Santi123", "clave1", "Santiago Escobar", false, false);
+            System.out.println("Usuario registrado correctamente.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("El usuario ya estaba registrado: " + e.getMessage());
+        }
 
-        // 2. GUARDAR (Ahora sí guarda lo que hay en el gestor)
-        guardarEnArchivo(gestor);
-        System.out.println("Datos guardados en " + FILE_PATH);
+        System.out.println("Guardando el estado completo a traves de GestorPersistencia...");
+        gp.guardarTodo(cafe);
+        System.out.println("Datos guardados en " + DATA_DIR);
 
+        // Simulamos un reinicio instanciando un nuevo GestorPersistencia y limpiando la lista actual
         System.out.println("Reiniciando sistema...");
-        gestor = new GestorUsuarios(); 
+        cafe.getGestorUsuarios().getUsuarios().clear();
 
         // 4. CARGAR
-        cargarDesdeArchivo(gestor);
-        System.out.println("Datos cargados correctamente.");
+        gp.cargarTodo();
+        System.out.println("Datos cargados correctamente desde CSVs.");
 
         // 5. VERIFICACIÓN
         Usuario user = gestor.autenticar("Santi123", "clave1");
@@ -31,38 +49,6 @@ public class PruebaPersistencia {
             System.out.println("SALIDA ESPERADA: EXITOSA. El usuario " + user.getNombre() + " pudo ingresar.");
         } else {
             System.out.println("SALIDA FALLIDA: El usuario no fue encontrado.");
-        }
-    }
-
-    private static void guardarEnArchivo(GestorUsuarios gestor) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
-            for (Usuario u : gestor.getUsuarios()) {
-                String tipo = (u instanceof Cliente) ? "Cliente" : "Empleado";
-                bw.write(u.getLogin() + ";" + u.getPassword() + ";" + u.getNombre() + ";" + tipo);
-                bw.newLine();
-            }
-        } catch (IOException e) {
-            System.err.println("Error al escribir archivo: " + e.getMessage());
-        }
-    }
-
-    private static void cargarDesdeArchivo(GestorUsuarios gestor) {
-        File archivo = new File(FILE_PATH);
-        if (!archivo.exists()) return;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
-            String linea;
-            while ((linea = br.readLine()) != null) {
-                if (linea.trim().isEmpty()) continue;
-                String[] d = linea.split(";");
-                if (d.length >= 4) { 
-                    if (d[3].equals("Cliente")) {
-                        gestor.registrarCliente(d[0], d[1], d[2], false, false);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error al leer archivo: " + e.getMessage());
         }
     }
 }

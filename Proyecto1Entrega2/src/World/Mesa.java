@@ -11,6 +11,7 @@ public class Mesa {
 	private boolean hayJovenes;
 	private Cliente ocupadaPor;
 	private boolean hayBebidaCaliente;
+	private java.util.List<Prestamo> prestamosActivos;
 	
 	public Mesa(int idMesa, int capacidadMax) {
         this.idMesa = idMesa;
@@ -21,6 +22,7 @@ public class Mesa {
         this.hayJovenes = false;
         this.hayBebidaCaliente = false;
         this.ocupadaPor = null;
+        this.prestamosActivos = new java.util.ArrayList<>();
     }
 	
 	public void ocupar(int personas, boolean hayNinos, boolean hayJovenes, Cliente cliente) {
@@ -46,11 +48,11 @@ public class Mesa {
 	}
 	
 	public boolean estaDisponible() {
-		return this.ocupada;
+		return !this.ocupada;
 	}
 	
 	public boolean puedeRecibirBebidaCaliente(Juego juego) {
-		if (juego.getCategoria() == "Accion"){
+		if ("Accion".equals(juego.getCategoria())){
 				return false;
 		}
 		return true;
@@ -63,6 +65,15 @@ public class Mesa {
 	public boolean puedeRecibirJuegoAccion() {
 		return !hayBebidaCaliente;
 	}
+	
+	public int getEdadMinimaEnMesa() {
+        if (hayNinos) {
+            return 0; // Si hay niños, asume edad de 0 para máxima restricción
+        } else if (hayJovenes) {
+            return 12; // Si hay jóvenes, asume edad de 12
+        }
+        return 18; // Adultos
+    }
 	
 	public void agregarPrestamo(Prestamo p) {
         this.prestamosActivos.add(p);

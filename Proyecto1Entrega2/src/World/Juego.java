@@ -1,6 +1,6 @@
-package Proyecto1Entrega2.src.World;
+package World;
 
-import Proyecto1Entrega2.src.ModuloVenta.CopiaVenta;
+import ModuloVenta.CopiaVenta;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +15,9 @@ public class Juego {
 	private boolean esDificil;
 	private List<CopiaPrestamo> copiasParaPrestamo; 
     private List<CopiaVenta> copiasParaVenta;
+	
+	// COMENTARIO: Se añade constructor protegido vacío para permitir que CopiaVenta instancie sin proveer todos los atributos del juego de base.
+	protected Juego() {}
 	
     public Juego(String nombre, int anioPublicacion, String empresaMatriz, int minJugadores, 
             int maxJugadores, int edadMinima, String categoria, boolean esDificil) {
@@ -40,8 +43,8 @@ public class Juego {
         return null; // Retorna null si todas las copias están prestadas
     }
     
-	public CopiaPrestamo[] getCopiasPrestamo() {
-		return copiasPrestamos;
+	public List<CopiaPrestamo> getCopiasPrestamo() {
+		return copiasParaPrestamo;
 	}
 	
 	public boolean esAptoParaEdad(int edadMinimaEnMesa) {
@@ -59,17 +62,16 @@ public class Juego {
 	public boolean estaDisponibleParaVenta() {
         return !this.copiasParaVenta.isEmpty();
     }
-		if (copiasPrestamos != null) {
-            for (CopiaPrestamo copia : copiasPrestamos) {
+    
+	public boolean estaDisponibleParaPrestamo() {
+		if (copiasParaPrestamo != null) {
+            for (CopiaPrestamo copia : copiasParaPrestamo) {
                 if (copia != null && copia.estaDisponible()) {
                     return true;
                 }
             }
         }
         return false;
-	}
-	public String getCategoria() {
-		return this.categoria;
 	}
 	
 	public void agregarCopiaPrestamo(CopiaPrestamo copia) { 

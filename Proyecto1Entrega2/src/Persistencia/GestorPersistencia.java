@@ -34,7 +34,7 @@ public class GestorPersistencia {
     public Cafeteria cargarTodo() {
         Cafeteria cafe = Cafeteria.getInstance(); 
         
-        // Primero los independientes, luego los dependientes
+        // Primero los independientesq, luego los dependientes
         List<Usuario> usuarios = cargarUsuarios();
         List<Juego> juegos = cargarJuegos();
         List<Prestamo> prestamos = cargarPrestamos(usuarios, juegos);

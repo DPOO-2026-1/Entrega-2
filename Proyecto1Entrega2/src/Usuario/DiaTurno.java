@@ -1,4 +1,4 @@
-package World;
+package Usuario;
 
 public class DiaTurno {
     private DiaSemana dia;

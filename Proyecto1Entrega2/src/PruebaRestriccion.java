@@ -1,10 +1,8 @@
-import static org.junit.Assert.*;
-import org.junit.Test;
-
-import Proyecto1Entrega2.src.World.Mesa;
-import Proyecto1Entrega2.src.World.Juego;
-import Proyecto1Entrega2.src.Usuario.Cliente;
-
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import org.junit.jupiter.api.Test;
+import World.Juego;
+import World.Mesa;
+import Usuario.Cliente;import World.Cafeteria;
 public class PruebaRestriccion {
 
     @Test
@@ -14,7 +12,7 @@ public class PruebaRestriccion {
         Mesa mesa = new Mesa(5, 4);
         mesa.ocupar(2, false, true, cliente);
         boolean permitido = mesa.puedeRecibirBebidaCaliente(juegoAccion);
-        assertFalse("Protocolo de seguridad: No se permiten bebidas calientes cerca de juegos de acción para evitar daños al material", permitido);
+        assertFalse(permitido, "Protocolo de seguridad: No se permiten bebidas calientes...");
     }
 }
 

@@ -1,7 +1,26 @@
-package Proyecto1Entrega2.src.World.Usuario;
+package Usuario;
 
 public class SugerenciaMenu {
 	private String descripcion;
 	private String estado;
 	private Empleado creadoPor;
+	
+	// COMENTARIO: Añadido constructor y getters/setters para pruebas
+	public SugerenciaMenu(String descripcion, String estado, Empleado creadoPor) {
+        this.descripcion = descripcion;
+        this.estado = estado;
+        this.creadoPor = creadoPor;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public Empleado getCreadoPor() {
+        return creadoPor;
+    }
 }

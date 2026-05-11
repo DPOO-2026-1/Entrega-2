@@ -3,6 +3,12 @@ package Usuario;
 import java.util.Date;
 import java.util.List;
 
+import World.CopiaPrestamo;
+import World.Juego;
+import ModuloVenta.CopiaVenta;
+import ModuloVenta.Venta;
+import ModuloVenta.ProductoComestible;
+
 public class Administrador extends Usuario {
 
     public Administrador(String login, String password, String nombre) {
@@ -14,9 +20,9 @@ public class Administrador extends Usuario {
         
         if (!s.isEsIntercambio()) {
             DiaTurno nuevoTurno = new DiaTurno(s.getDia(), true);
-            s.getSolicitadoPor().getDiasAsignados().add(nuevoTurno);
+            s.getSolicitadoPor().consultarDiasAsignados().add(nuevoTurno);
         } else {
-            s.getSolicitadoPor().getDiasAsignados().add(new DiaTurno(s.getDia(), true));
+            s.getSolicitadoPor().consultarDiasAsignados().add(new DiaTurno(s.getDia(), true));
         }
     }
     
@@ -52,6 +58,13 @@ public class Administrador extends Usuario {
         
         CopiaVenta nuevaVenta = new CopiaVenta("V-" + c.getIdUnico(), 45000.0); // Precio asumido
         j.agregarCopiaVenta(nuevaVenta);
+    }
+    
+    // COMENTARIO: Añadido método para mover copia de venta a préstamo (reparación de inventario).
+    public void moverJuegoAPrestamo(CopiaVenta c, Juego j) {
+        // Se asume que la copia de venta se elimina o se marca como no disponible, pero como CopiaVenta no tiene estado, solo se crea la de préstamo.
+        CopiaPrestamo nuevaPrestamo = new CopiaPrestamo("P-MOV-" + System.currentTimeMillis(), "Nuevo", true, 0);
+        j.agregarCopiaPrestamo(nuevaPrestamo);
     }
     
     public String generarInformeVentas(List<Venta> inventarioVentas, Date ini, Date fin, String granularidad) {

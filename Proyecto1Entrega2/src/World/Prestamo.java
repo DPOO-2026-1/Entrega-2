@@ -1,6 +1,6 @@
-package Proyecto1Entrega2.src.World;
+package World;
 
-import Proyecto1Entrega2.src.Usuario.Usuario;
+import Usuario.Usuario;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;

@@ -1,11 +1,8 @@
 package Usuario;
 
-import World.DiaSemana;
-import World.SolicitudTurno;
-import World.SugerenciaMenu;
 import World.CopiaPrestamo;
 import World.Prestamo;
-import World.DiaTurno;
+import Usuario.DiaTurno;
 import ModuloVenta.ItemVenta;
 import ModuloVenta.Venta;
 import java.util.List;
@@ -44,7 +41,8 @@ public abstract class Empleado extends Usuario {
         return this.estaDeTurno;
     }
 
-    public List<DiaTurno> consultarDiaAsignado() {
+    // COMENTARIO: Se renombra el método de consultarDiaAsignado a consultarDiasAsignados para reflejar que retorna una lista y coincidir con su uso en Cafeteria.
+    public List<DiaTurno> consultarDiasAsignados() {
         return this.diasAsignados;
     }
 }

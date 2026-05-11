@@ -102,4 +102,7 @@ public class Cliente extends Usuario {
     public int getPuntosFidelidad() { 
     	return puntosFidelidad; 
     }
+    public void setPuntosFidelidad(int puntosFidelidad) {
+        this.puntosFidelidad = puntosFidelidad;
+    }
 }

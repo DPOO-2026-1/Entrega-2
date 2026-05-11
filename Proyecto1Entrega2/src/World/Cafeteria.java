@@ -1,10 +1,14 @@
-package Proyecto1Entrega2.src.World;
+package World;
 
-import Proyecto1Entrega2.src.Usuario.Usuario;
-import Proyecto1Entrega2.src.Usuario.GestorUsuarios;
-import Proyecto1Entrega2.src.Usuario.DiaSemana;
-import Proyecto1Entrega2.src.ModuloVenta.GestorVentas;
-import Proyecto1Entrega2.src.ModuloVenta.Pasteleria;
+import Usuario.Usuario;
+import Usuario.GestorUsuarios;
+import Usuario.DiaSemana;
+import Usuario.Empleado;
+import Usuario.Cocinero;
+import Usuario.Mesero;
+import Usuario.DiaTurno;
+import ModuloVenta.GestorVentas;
+import ModuloVenta.Pasteleria;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,6 +130,11 @@ public class Cafeteria {
     
     public static Cafeteria getInstance() {
         return instance;
+    }
+    
+    // COMENTARIO: Este método permite limpiar la instancia del Singleton entre pruebas, para garantizar que los datos no se contaminen.
+    public static void resetInstance() {
+        instance = null;
     }
     
     public int getCapacidadMax() { 

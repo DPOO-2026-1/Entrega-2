@@ -5,6 +5,13 @@ public class ItemVenta {
 	private double precioUnitario;
 	private ProductoVendible producto;
 	
+	// COMENTARIO: Añadido constructor para ItemVenta
+	public ItemVenta(ProductoVendible producto, int cantidad, double precioUnitario) {
+        this.producto = producto;
+        this.cantidad = cantidad;
+        this.precioUnitario = precioUnitario;
+    }
+	
 	public double calcularImpuestoItem() {
 		double subtotal = getSubtotalItem();
         return subtotal * producto.getTasaImpuesto();

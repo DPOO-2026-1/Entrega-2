@@ -6,6 +6,23 @@ public class CopiaPrestamo {
 	private boolean estaDisponible;
 	private int vecesPrestado;
 	
+	// COMENTARIO: Añadido constructor público para poder instanciar copias de préstamo en las pruebas y lógica de negocio.
+	public CopiaPrestamo(String idUnico, String estado, boolean estaDisponible, int vecesPrestado) {
+        this.idUnico = idUnico;
+        this.estado = estado;
+        this.estaDisponible = estaDisponible;
+        this.vecesPrestado = vecesPrestado;
+    }
+    
+    // COMENTARIO: Añadido setter para disponibilidad y getter de vecesPrestado.
+    public void setEstaDisponible(boolean estaDisponible) {
+        this.estaDisponible = estaDisponible;
+    }
+    
+    public int getVecesPrestado() {
+        return vecesPrestado;
+    }
+	
 	public void prestar() {
 		if (estaDisponible) {
             this.estaDisponible = false;

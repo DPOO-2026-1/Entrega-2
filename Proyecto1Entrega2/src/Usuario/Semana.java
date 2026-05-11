@@ -1,4 +1,4 @@
-package Proyecto1Entrega2.src.World.Usuario;
+package Usuario;
 import java.util.Map;
 
 public class Semana {

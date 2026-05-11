@@ -1,4 +1,4 @@
-package Proyecto1Entrega2.src.World.Usuario;
+package Usuario;
 
 public enum DiaSemana {
 	Lunes,

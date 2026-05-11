@@ -1,4 +1,4 @@
-package Proyecto1Entrega2.src.Usuario;
+package Usuario;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +9,16 @@ import World.Cafeteria;
 public class GestorUsuarios{
     private GestorPersistencia gestorPersistencia;
     private Cafeteria cafeteria;
+    private List<Usuario> usuarios;
 
     public GestorUsuarios(GestorPersistencia gp, Cafeteria cafe) {
         this.gestorPersistencia = gp;
         this.cafeteria = cafe;
+        this.usuarios = new ArrayList<>();
+    }
+    
+    public List<Usuario> getUsuarios() {
+        return this.usuarios;
     }
 
     public Cliente registrarCliente(String login, String password, String nombre, boolean esNino, boolean esJoven) {
@@ -20,8 +26,10 @@ public class GestorUsuarios{
             throw new IllegalArgumentException("Ya existe un usuario con ese login.");
         }
         Cliente c = new Cliente(login, password, nombre, esNino, esJoven);
-        cafeteria.getUsuarios().add(c);
-        gestorPersistencia.guardarUsuarios(cafeteria.getUsuarios());
+        this.usuarios.add(c);
+        if (gestorPersistencia != null) {
+            gestorPersistencia.guardarUsuarios(this.usuarios);
+        }
         return c;
     }
 
@@ -62,7 +70,7 @@ public class GestorUsuarios{
     }
 
     public Usuario buscarUsuario(String login) {
-        for (Usuario u : cafeteria.getUsuarios()) {
+        for (Usuario u : this.usuarios) {
             if (u.getLogin().equals(login)) {
                 return u;
             }
@@ -77,8 +85,10 @@ public class GestorUsuarios{
     public boolean eliminarUsuario(String login) {
         Usuario u = buscarUsuario(login);
         if (u != null) {
-            cafeteria.getUsuarios().remove(u);
-            gestorPersistencia.guardarUsuarios(cafeteria.getUsuarios());
+            this.usuarios.remove(u);
+            if(gestorPersistencia != null) {
+                gestorPersistencia.guardarUsuarios(this.usuarios);
+            }
             return true;
         }
         return false;
