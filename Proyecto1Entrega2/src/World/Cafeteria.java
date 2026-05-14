@@ -9,6 +9,8 @@ import Usuario.Mesero;
 import Usuario.DiaTurno;
 import ModuloVenta.GestorVentas;
 import ModuloVenta.Pasteleria;
+// Cambio para venta
+import ModuloVenta.Venta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,8 @@ public class Cafeteria {
     private List<Prestamo> historialPrestamos;
     private GestorUsuarios gestorUsuarios;
     private GestorVentas gestorVentas;
+    // Cambio para venta
+    private List<Venta> ventas;
 
  // Constructor Privado, evita que alguien haga "new Cafeteria()" desde fuera
     private Cafeteria(int capacidadMax, String nombre, GestorUsuarios gu, GestorVentas gv) {
@@ -35,6 +39,8 @@ public class Cafeteria {
         this.juegos = new ArrayList<>();
         this.mesas = new ArrayList<>();
         this.historialPrestamos = new ArrayList<>();
+        // Cambio para consola
+        this.ventas = new ArrayList<>();
     }
 
     // Metodos
@@ -188,5 +194,34 @@ public class Cafeteria {
     }
     public void setGestorVentas(GestorVentas gestorVentas) { 
     	this.gestorVentas = gestorVentas; 
+    }
+    
+    // Cambios para la consola
+    public List<Usuario> getUsuarios() {
+        return this.gestorUsuarios.getUsuarios();
+    }
+
+    public void setUsuarios(List<Usuario> usuarios) {
+        this.gestorUsuarios.setUsuarios(usuarios);
+    }
+
+    public List<Prestamo> getPrestamos() {
+        return this.historialPrestamos;
+    }
+
+    public void setPrestamos(List<Prestamo> prestamos) {
+        this.historialPrestamos = prestamos;
+    }
+
+    public List<Venta> getVentas() {
+        return this.ventas;
+    }
+
+    public void setVentas(List<Venta> ventas) {
+        this.ventas = ventas;
+    }
+
+    public Mesa buscarMesaDisponible(int personas, boolean hayNinos, boolean hayJovenes) {
+        return getMesaDisponible(personas);
     }
 }

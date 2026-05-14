@@ -24,11 +24,12 @@ public abstract class Consola {
         GestorVentas gestorVentas = new GestorVentas(this.persistencia);
 
         this.cafeteria = Cafeteria.getInstance(80, "Board Nights", gestorUsuarios, gestorVentas);
-
+        
+        
         gestorUsuarios.setCafeteria(this.cafeteria);
         this.cafeteria.setGestorUsuarios(gestorUsuarios);
         this.cafeteria.setGestorVentas(gestorVentas);
-
+        
         this.usuarioActual = null;
         this.salir = false;
     }

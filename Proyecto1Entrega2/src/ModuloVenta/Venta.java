@@ -97,4 +97,5 @@ public class Venta {
     public void setItemsVenta(ItemVenta[] itemsVenta) {
         this.itemsVenta = itemsVenta;
     }
+
 }

@@ -40,6 +40,10 @@ public abstract class Empleado extends Usuario {
     public boolean estaEnTurno() {
         return this.estaDeTurno;
     }
+    
+    public String getCodigoDescuento() {
+        return codigoDescuento;
+    }
 
     // COMENTARIO: Se renombra el método de consultarDiaAsignado a consultarDiasAsignados para reflejar que retorna una lista y coincidir con su uso en Cafeteria.
     public List<DiaTurno> consultarDiasAsignados() {
