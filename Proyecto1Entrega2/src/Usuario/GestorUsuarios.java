@@ -93,4 +93,13 @@ public class GestorUsuarios{
         }
         return false;
     }
+    
+    // Cambios para consola
+    public void setCafeteria(Cafeteria cafeteria) {
+        this.cafeteria = cafeteria;
+    }
+
+    public void setUsuarios(List<Usuario> usuarios) {
+        this.usuarios = usuarios;
+    }
 }
