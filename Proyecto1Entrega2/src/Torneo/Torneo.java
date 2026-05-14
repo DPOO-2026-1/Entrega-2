@@ -180,4 +180,5 @@ public abstract class Torneo {
 			inscripciones.add()
 		}
 	}
+	
 }
