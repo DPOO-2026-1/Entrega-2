@@ -12,7 +12,30 @@ public class Prestamo {
 
     private Usuario solicitadoPor;         
     private Mesa mesaAsociada;             
-    private List<CopiaPrestamo> copias;    
+    private List<CopiaPrestamo> copias;  
+
+    // ===== CAMBIO HECHO =====
+    // Agregué constructor compatible con usos donde se presta una sola copia.
+    // Este constructor lo usa Mesero.alquilarJuego y puede servir para Cliente.solicitarPrestamo.
+    // ===== FIN CAMBIO =====
+    public Prestamo(Date fechaInicio, CopiaPrestamo copia, Mesa mesaAsociada, Usuario solicitadoPor) {
+        this(solicitadoPor, mesaAsociada, new ArrayList<CopiaPrestamo>());
+
+        if (copia != null) {
+            this.copias.add(copia);
+
+            if (copia.estaDisponible()) {
+                copia.prestar();
+            }
+        }
+
+        if (fechaInicio != null) {
+            this.fechaHoraInicio = fechaInicio;
+        } else {
+            this.fechaHoraInicio = new Date();
+        }
+    }
+  
 
     public Prestamo(Usuario solicitadoPor, Mesa mesaAsociada, List<CopiaPrestamo> copias) {
         this.estado = "Activo";
@@ -52,25 +75,45 @@ public class Prestamo {
         return diferenciaMs / (1000.0 * 60 * 60);
     }
 
-    public String getEstado() { 
-    	return estado; 
+     // ===== CAMBIO HECHO =====
+    // Getters/setters necesarios para pruebas, persistencia e historial.
+    // ===== FIN CAMBIO =====
+    public String getEstado() {
+        return estado;
     }
-    public void setEstado(String estado) { 
-    	this.estado = estado; 
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
-    public Date getFechaHoraInicio() { 
-        return fechaHoraInicio; 
+
+    public Date getFechaHoraInicio() {
+        return fechaHoraInicio;
     }
-    public Date getFechaHoraFin() { 
-        return fechaHoraFin; 
+
+    public Date getFechaHoraFin() {
+        return fechaHoraFin;
     }
-    public Usuario getSolicitadoPor() { 
-    	return solicitadoPor; 
+
+    public Usuario getSolicitadoPor() {
+        return solicitadoPor;
     }
-    public Mesa getMesaAsociada() { 
-    	return mesaAsociada; 
+
+    public Mesa getMesaAsociada() {
+        return mesaAsociada;
     }
-    public List<CopiaPrestamo> getCopias() { 
-    	return copias; 
+
+    public List<CopiaPrestamo> getCopias() {
+        return copias;
+    }
+
+    // ===== CAMBIO HECHO =====
+    // Getter de compatibilidad para código que espera un solo juego/copia.
+    // ===== FIN CAMBIO =====
+    public CopiaPrestamo getCopia() {
+        if (copias != null && !copias.isEmpty()) {
+            return copias.get(0);
+        }
+
+        return null;
     }
 }

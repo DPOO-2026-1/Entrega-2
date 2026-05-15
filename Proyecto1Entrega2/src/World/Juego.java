@@ -30,8 +30,8 @@ public class Juego {
     this.categoria = categoria;
     this.esDificil = esDificil;
    
-    this.copiasParaPrestamo = new ArrayList<>();
-    this.copiasParaVenta = new ArrayList<>();
+    this.copiasParaPrestamo = new ArrayList<CopiaPrestamo>();
+    this.copiasParaVenta = new ArrayList<CopiaVenta>();
     }
     
     public CopiaPrestamo getCopiaDisponible() {

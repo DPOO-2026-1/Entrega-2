@@ -14,6 +14,32 @@ public class Venta {
 	private int puntosGenerados;
 	private Usuario realizadaPor;
 	private ItemVenta[] itemsVenta;
+
+    // ===== CAMBIO HECHO =====
+    // Agregué constructor vacío para permitir crear ventas desde Mesero, Cliente, GestorVentas o pruebas.
+    // ===== FIN CAMBIO =====
+    public Venta() {
+    }
+
+    // ===== CAMBIO HECHO =====
+    // Agregué constructor compatible con Date, porque el UML usa Date,
+    // pero internamente esta clase usa LocalDateTime.
+    // ===== FIN CAMBIO =====
+    public Venta(Date fecha, ItemVenta[] itemsVenta, Usuario realizadaPor) {
+        if (fecha != null) {
+            this.fecha = LocalDateTime.ofInstant(fecha.toInstant(), ZoneId.systemDefault());
+        } else {
+            this.fecha = LocalDateTime.now();
+        }
+
+        this.itemsVenta = itemsVenta;
+        this.realizadaPor = realizadaPor;
+
+        calcularSubtotal();
+        calcularImpuestosTotales();
+        calcularTotal();
+        calcularPuntosGenerados();
+    }
 	
 	public double calcularSubtotal() {
 		double suma = 0;
@@ -56,17 +82,72 @@ public class Venta {
         return puntosGenerados;
 	}
 	
-	public void aplicarDescuento(String codigo) {
-		if (codigo.equalsIgnoreCase("EMPLEADO")) {
+	// ===== CAMBIO HECHO =====
+    // Implementé descuento por código según el UML.
+    // ===== FIN CAMBIO =====
+    public void aplicarDescuento(String codigo) {
+        if (codigo == null) {
+            this.descuentoAplicado = 0;
+        } else if (codigo.equalsIgnoreCase("EMPLEADO")) {
             this.descuentoAplicado = 20;
         } else if (codigo.equalsIgnoreCase("CLIENTE")) {
             this.descuentoAplicado = 10;
         } else {
             this.descuentoAplicado = 0;
         }
-    } //revisar este método, está mal implementado
+    }
 
-	public int getIdVenta() {
+    // ===== CAMBIO HECHO =====
+    // Implementé aplicarBono(BonoTorneoAmistoso) porque el UML conecta Venta con BonoTorneoAmistoso.
+    // Regla del UML: el bono no es acumulable con descuentos o puntos.
+    // ===== FIN CAMBIO =====
+    public void aplicarBono(BonoTorneoAmistoso bono) {
+        if (bono == null || !bono.estaDisponible()) {
+            throw new IllegalArgumentException("El bono no está disponible.");
+        }
+
+        if (descuentoAplicado > 0 || puntosGenerados < 0) {
+            throw new IllegalStateException("El bono de torneo no es acumulable con otros descuentos o puntos.");
+        }
+
+        calcularSubtotal();
+        calcularImpuestosTotales();
+
+        double descuento = bono.getValor();
+        this.total = Math.max(0, subtotal + impuestos + propina - descuento);
+
+        bono.marcarUsado();
+    }
+
+	public double getSubtotal() {
+        return subtotal;
+    }
+
+    public double getImpuestos() {
+        return impuestos;
+    }
+
+    public double getPropina() {
+        return propina;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public int getDescuentoAplicado() {
+        return descuentoAplicado;
+    }
+
+    public int getPuntosGenerados() {
+        return puntosGenerados;
+    }
+
+    public void setPuntosGenerados(int puntosGenerados) {
+        this.puntosGenerados = puntosGenerados;
+    }
+
+    public int getIdVenta() {
         return idVenta;
     }
 
@@ -82,7 +163,7 @@ public class Venta {
         this.fecha = fecha;
     }
 
-	public Usuario getRealizadaPor() {
+    public Usuario getRealizadaPor() {
         return realizadaPor;
     }
 

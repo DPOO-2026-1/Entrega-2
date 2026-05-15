@@ -5,6 +5,7 @@ public class CopiaPrestamo {
 	private String estado;
 	private boolean estaDisponible;
 	private int vecesPrestado;
+	private Juego juegoAsociado;
 	
 	// COMENTARIO: Añadido constructor público para poder instanciar copias de préstamo en las pruebas y lógica de negocio.
 	public CopiaPrestamo(String idUnico, String estado, boolean estaDisponible, int vecesPrestado) {
@@ -59,5 +60,24 @@ public class CopiaPrestamo {
 
 	public String getEstado() {
         return estado;
+    }
+	public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public Juego getJuegoAsociado() {
+        return juegoAsociado;
+    }
+
+    public void setJuegoAsociado(Juego juegoAsociado) {
+        this.juegoAsociado = juegoAsociado;
+    }
+
+    public void setEstaDisponible(boolean estaDisponible) {
+        this.estaDisponible = estaDisponible;
+    }
+
+    public int getVecesPrestado() {
+        return vecesPrestado;
     }
 }
