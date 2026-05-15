@@ -10,6 +10,15 @@ import Usuario.Empleado;
 import World.Cafeteria;
 import World.Juego;
 import World.Prestamo;
+import Torneo.BonoTorneoAmistoso;
+import Torneo.EstadoTorneo;
+import Torneo.GestorTorneo;
+import Torneo.InscripcionTorneo;
+import Torneo.Torneo;
+import Torneo.TorneoAmistoso;
+import Torneo.TorneoCompetitivo;
+import Usuario.DiaSemana;
+import java.util.Map;
 import World.Mesa; // CAMBIO: necesario porque Prestamo usa Mesa
 import World.CopiaPrestamo; // CAMBIO: necesario porque Prestamo guarda copias
 import java.lang.reflect.Field; // CAMBIO: para restaurar fechaInicio sin modificar Prestamo
@@ -567,5 +576,529 @@ public class GestorPersistencia {
         }
 
         return 0.0;
+    }
+    
+    // PERSISTENCIA TORNEOS
+    public GestorTorneo cargarGestorTorneo(List<Usuario> usuariosTotales, List<Juego> juegosTotales) {
+        GestorTorneo gestor = new GestorTorneo();
+
+        List<Torneo> torneos = cargarTorneos(juegosTotales);
+        gestor.getCatalogoTorneos().addAll(torneos);
+
+        cargarInscripcionesTorneos(gestor, usuariosTotales);
+        cargarPagosTorneos(gestor);
+        cargarBonosTorneos(gestor, usuariosTotales);
+
+        return gestor;
+    }
+
+    public void guardarGestorTorneo(GestorTorneo gestorTorneo) {
+        if (gestorTorneo == null) {
+            return;
+        }
+
+        guardarTorneos(gestorTorneo.getCatalogoTorneos());
+        guardarInscripcionesTorneos(gestorTorneo.getCatalogoTorneos());
+        guardarPagosTorneos(gestorTorneo.getCatalogoTorneos());
+        guardarBonosTorneos(gestorTorneo.getBonos());
+    }
+
+    private List<Torneo> cargarTorneos(List<Juego> juegosTotales) {
+        List<Torneo> torneos = new ArrayList<Torneo>();
+        File archivo = new File(rutaArchivos + "torneos.csv");
+
+        if (!archivo.exists()) {
+            return torneos;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+            String linea;
+
+            while ((linea = br.readLine()) != null) {
+                if (linea.trim().isEmpty()) {
+                    continue;
+                }
+
+                String[] p = linea.split(";", -1);
+
+                // Formato:
+                // tipo;id;dia;fechaInicio;duracionMin;estado;cupoTotal;cupoReservadoFanaticos;
+                // cupoOcupadoReservado;cupoOcupadoRegular;fechaCreacion;nombre;nombreJuego;
+                // valorBono;tarifaEntrada;porcentajePozoPremio
+
+                if (p.length < 16) {
+                    System.err.println("Línea de torneo inválida: " + linea);
+                    continue;
+                }
+
+                String tipo = p[0];
+                String idTorneo = p[1];
+                DiaSemana dia = DiaSemana.valueOf(p[2]);
+                Date fechaInicio = parsearFechaSegura(p[3]);
+                int duracionMin = Integer.parseInt(p[4]);
+                EstadoTorneo estado = EstadoTorneo.valueOf(p[5]);
+                int cupoTotal = Integer.parseInt(p[6]);
+                int cupoReservadoFanaticos = Integer.parseInt(p[7]);
+                int cupoOcupadoReservado = Integer.parseInt(p[8]);
+                int cupoOcupadoRegular = Integer.parseInt(p[9]);
+                Date fechaCreacion = parsearFechaSegura(p[10]);
+                String nombre = p[11];
+                String nombreJuego = p[12];
+
+                Juego juego = buscarJuegoPorNombre(juegosTotales, nombreJuego);
+
+                if (juego == null) {
+                    System.err.println("Juego no encontrado para torneo: " + nombreJuego);
+                    continue;
+                }
+
+                if ("AMISTOSO".equals(tipo)) {
+                    double valorBono = Double.parseDouble(p[13]);
+
+                    TorneoAmistoso torneo = new TorneoAmistoso(
+                            idTorneo,
+                            dia,
+                            fechaInicio,
+                            duracionMin,
+                            estado,
+                            cupoTotal,
+                            cupoReservadoFanaticos,
+                            cupoOcupadoReservado,
+                            cupoOcupadoRegular,
+                            fechaCreacion,
+                            nombre,
+                            juego,
+                            new ArrayList<InscripcionTorneo>(),
+                            valorBono
+                    );
+
+                    torneos.add(torneo);
+                } 
+                else if ("COMPETITIVO".equals(tipo)) {
+                    double tarifaEntrada = Double.parseDouble(p[14]);
+                    double porcentajePozoPremio = Double.parseDouble(p[15]);
+
+                    TorneoCompetitivo torneo = new TorneoCompetitivo(
+                            idTorneo,
+                            dia,
+                            fechaInicio,
+                            duracionMin,
+                            estado,
+                            cupoTotal,
+                            cupoReservadoFanaticos,
+                            cupoOcupadoReservado,
+                            cupoOcupadoRegular,
+                            fechaCreacion,
+                            nombre,
+                            juego,
+                            new ArrayList<InscripcionTorneo>(),
+                            tarifaEntrada
+                    );
+
+                    torneo.setPorcentajePozoPremio(porcentajePozoPremio);
+
+                    torneos.add(torneo);
+                } 
+                else {
+                    System.err.println("Tipo de torneo desconocido: " + tipo);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error leyendo torneos: " + e.getMessage());
+        }
+
+        return torneos;
+    }
+
+    private void guardarTorneos(List<Torneo> torneos) {
+        File archivo = new File(rutaArchivos + "torneos.csv");
+
+        if (archivo.getParentFile() != null) {
+            archivo.getParentFile().mkdirs();
+        }
+
+        try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
+            for (Torneo t : torneos) {
+                String tipo = "";
+                double valorBono = 0.0;
+                double tarifaEntrada = 0.0;
+                double porcentajePozoPremio = 0.0;
+
+                if (t instanceof TorneoAmistoso) {
+                    tipo = "AMISTOSO";
+                    valorBono = ((TorneoAmistoso) t).getValorBono();
+                } 
+                else if (t instanceof TorneoCompetitivo) {
+                    tipo = "COMPETITIVO";
+                    TorneoCompetitivo tc = (TorneoCompetitivo) t;
+                    tarifaEntrada = tc.getTarifaEntrada();
+                    porcentajePozoPremio = tc.getPorcentajePozoPremio();
+                } 
+                else {
+                    continue;
+                }
+
+                String nombreJuego = "";
+
+                if (t.getJuegoTorneo() != null) {
+                    nombreJuego = t.getJuegoTorneo().getNombre();
+                }
+
+                pw.println(tipo + ";"
+                        + limpiarCampo(t.getIdTorneo()) + ";"
+                        + t.getDia().name() + ";"
+                        + formatearFechaSegura(t.getFechaInicio()) + ";"
+                        + t.getDuracionMin() + ";"
+                        + t.getEstado().name() + ";"
+                        + t.getCupoTotal() + ";"
+                        + t.getCupoReservadoFanaticos() + ";"
+                        + t.getCupoOcupadoReservado() + ";"
+                        + t.getCupoOcupadoRegular() + ";"
+                        + formatearFechaSegura(t.getFechaCreacion()) + ";"
+                        + limpiarCampo(t.getNombre()) + ";"
+                        + limpiarCampo(nombreJuego) + ";"
+                        + valorBono + ";"
+                        + tarifaEntrada + ";"
+                        + porcentajePozoPremio);
+            }
+        } catch (Exception e) {
+            System.err.println("Error guardando torneos: " + e.getMessage());
+        }
+    }
+
+    private void cargarInscripcionesTorneos(GestorTorneo gestor, List<Usuario> usuariosTotales) {
+        File archivo = new File(rutaArchivos + "inscripciones_torneos.csv");
+
+        if (!archivo.exists()) {
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+            String linea;
+
+            while ((linea = br.readLine()) != null) {
+                if (linea.trim().isEmpty()) {
+                    continue;
+                }
+
+                String[] p = linea.split(";", -1);
+
+                // Formato:
+                // idTorneo;idInscripcion;fecha;loginsUsuarios;cantidadCupos;cuposReservados;
+                // cuposRegulares;esEmpleado;montoPagado;pagoConfirmado;elegiblePrecioMetalico
+
+                if (p.length < 11) {
+                    System.err.println("Línea de inscripción inválida: " + linea);
+                    continue;
+                }
+
+                String idTorneo = p[0];
+                Torneo torneo = gestor.buscarTorneo(idTorneo);
+
+                if (torneo == null) {
+                    System.err.println("Torneo no encontrado para inscripción: " + idTorneo);
+                    continue;
+                }
+
+                String idInscripcion = p[1];
+                Date fecha = parsearFechaSegura(p[2]);
+                String logins = p[3];
+
+                List<Usuario> usuariosInscritos = new ArrayList<Usuario>();
+
+                if (!logins.trim().isEmpty()) {
+                    String[] partesLogin = logins.split(",");
+
+                    for (String login : partesLogin) {
+                        Usuario u = buscarUsuarioPorLogin(usuariosTotales, login.trim());
+
+                        if (u != null) {
+                            usuariosInscritos.add(u);
+                        }
+                    }
+                }
+
+                int cantidadCupos = Integer.parseInt(p[4]);
+                int cuposReservados = Integer.parseInt(p[5]);
+                int cuposRegulares = Integer.parseInt(p[6]);
+                boolean esEmpleado = Boolean.parseBoolean(p[7]);
+                double montoPagado = Double.parseDouble(p[8]);
+                boolean pagoConfirmado = Boolean.parseBoolean(p[9]);
+                boolean elegiblePrecioMetalico = Boolean.parseBoolean(p[10]);
+
+                InscripcionTorneo inscripcion = new InscripcionTorneo(
+                        idInscripcion,
+                        fecha,
+                        usuariosInscritos,
+                        cantidadCupos,
+                        cuposReservados,
+                        cuposRegulares,
+                        esEmpleado,
+                        montoPagado,
+                        pagoConfirmado,
+                        elegiblePrecioMetalico
+                );
+
+                torneo.getInscripciones().add(inscripcion);
+            }
+        } catch (Exception e) {
+            System.err.println("Error leyendo inscripciones de torneos: " + e.getMessage());
+        }
+    }
+
+    private void guardarInscripcionesTorneos(List<Torneo> torneos) {
+        File archivo = new File(rutaArchivos + "inscripciones_torneos.csv");
+
+        if (archivo.getParentFile() != null) {
+            archivo.getParentFile().mkdirs();
+        }
+
+        try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
+            for (Torneo torneo : torneos) {
+                for (InscripcionTorneo inscripcion : torneo.getInscripciones()) {
+                    String logins = "";
+
+                    for (int i = 0; i < inscripcion.getUsuarios().size(); i++) {
+                        Usuario u = inscripcion.getUsuarios().get(i);
+
+                        if (u != null) {
+                            if (!logins.isEmpty()) {
+                                logins += ",";
+                            }
+
+                            logins += u.getLogin();
+                        }
+                    }
+
+                    pw.println(torneo.getIdTorneo() + ";"
+                            + limpiarCampo(inscripcion.getIdInscripcion()) + ";"
+                            + formatearFechaSegura(inscripcion.getFecha()) + ";"
+                            + limpiarCampo(logins) + ";"
+                            + inscripcion.getCantidadCupos() + ";"
+                            + inscripcion.getCuposReservados() + ";"
+                            + inscripcion.getCuposRegulares() + ";"
+                            + inscripcion.isEsEmpleado() + ";"
+                            + inscripcion.getMontoPagado() + ";"
+                            + inscripcion.isPagoConfirmado() + ";"
+                            + inscripcion.isElegiblePrecioMetalico());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error guardando inscripciones de torneos: " + e.getMessage());
+        }
+    }
+
+    private void cargarPagosTorneos(GestorTorneo gestor) {
+        File archivo = new File(rutaArchivos + "pagos_torneos.csv");
+
+        if (!archivo.exists()) {
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+            String linea;
+
+            while ((linea = br.readLine()) != null) {
+                if (linea.trim().isEmpty()) {
+                    continue;
+                }
+
+                String[] p = linea.split(";", -1);
+
+                // Formato:
+                // idTorneo;loginUsuario;monto
+
+                if (p.length < 3) {
+                    System.err.println("Línea de pago de torneo inválida: " + linea);
+                    continue;
+                }
+
+                Torneo torneo = gestor.buscarTorneo(p[0]);
+
+                if (torneo instanceof TorneoCompetitivo) {
+                    TorneoCompetitivo competitivo = (TorneoCompetitivo) torneo;
+                    competitivo.getPagosPorUsuario().put(p[1], Double.parseDouble(p[2]));
+                    competitivo.calcularPozo();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error leyendo pagos de torneos: " + e.getMessage());
+        }
+    }
+
+    private void guardarPagosTorneos(List<Torneo> torneos) {
+        File archivo = new File(rutaArchivos + "pagos_torneos.csv");
+
+        if (archivo.getParentFile() != null) {
+            archivo.getParentFile().mkdirs();
+        }
+
+        try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
+            for (Torneo torneo : torneos) {
+                if (torneo instanceof TorneoCompetitivo) {
+                    TorneoCompetitivo competitivo = (TorneoCompetitivo) torneo;
+
+                    for (Map.Entry<String, Double> entrada : competitivo.getPagosPorUsuario().entrySet()) {
+                        pw.println(torneo.getIdTorneo() + ";"
+                                + limpiarCampo(entrada.getKey()) + ";"
+                                + entrada.getValue());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error guardando pagos de torneos: " + e.getMessage());
+        }
+    }
+
+    private void cargarBonosTorneos(GestorTorneo gestor, List<Usuario> usuariosTotales) {
+        File archivo = new File(rutaArchivos + "bonos_torneos.csv");
+
+        if (!archivo.exists()) {
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+            String linea;
+
+            while ((linea = br.readLine()) != null) {
+                if (linea.trim().isEmpty()) {
+                    continue;
+                }
+
+                String[] p = linea.split(";", -1);
+
+                // Formato:
+                // codigo;valor;estado;fechaOtorgado;fechaUsado;loginGanador;idTorneo
+
+                if (p.length < 7) {
+                    System.err.println("Línea de bono de torneo inválida: " + linea);
+                    continue;
+                }
+
+                String codigo = p[0];
+                double valor = Double.parseDouble(p[1]);
+                String estado = p[2];
+                Date fechaOtorgado = parsearFechaSegura(p[3]);
+                Date fechaUsado = parsearFechaSegura(p[4]);
+                Usuario ganador = buscarUsuarioPorLogin(usuariosTotales, p[5]);
+                Torneo torneo = gestor.buscarTorneo(p[6]);
+
+                if (ganador == null || torneo == null) {
+                    System.err.println("No se pudo reconstruir bono: " + codigo);
+                    continue;
+                }
+
+                BonoTorneoAmistoso bono = new BonoTorneoAmistoso(codigo, valor, ganador, torneo);
+                bono.setEstado(estado);
+
+                restaurarFechaBono(bono, "fechaOtorgado", fechaOtorgado);
+                restaurarFechaBono(bono, "fechaUsado", fechaUsado);
+
+                gestor.getBonos().add(bono);
+
+                if (torneo instanceof TorneoAmistoso) {
+                    TorneoAmistoso amistoso = (TorneoAmistoso) torneo;
+                    amistoso.getBonos().add(bono);
+                    marcarBonoOtorgado(amistoso);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error leyendo bonos de torneos: " + e.getMessage());
+        }
+    }
+
+    private void guardarBonosTorneos(List<BonoTorneoAmistoso> bonos) {
+        File archivo = new File(rutaArchivos + "bonos_torneos.csv");
+
+        if (archivo.getParentFile() != null) {
+            archivo.getParentFile().mkdirs();
+        }
+
+        try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
+            for (BonoTorneoAmistoso bono : bonos) {
+                String loginGanador = "";
+                String idTorneo = "";
+
+                if (bono.getGanador() != null) {
+                    loginGanador = bono.getGanador().getLogin();
+                }
+
+                if (bono.getTorneo() != null) {
+                    idTorneo = bono.getTorneo().getIdTorneo();
+                }
+
+                pw.println(limpiarCampo(bono.getCodigo()) + ";"
+                        + bono.getValor() + ";"
+                        + limpiarCampo(bono.getEstado()) + ";"
+                        + formatearFechaSegura(bono.getFechaOtorgado()) + ";"
+                        + formatearFechaSegura(bono.getFechaUsado()) + ";"
+                        + limpiarCampo(loginGanador) + ";"
+                        + limpiarCampo(idTorneo));
+            }
+        } catch (Exception e) {
+            System.err.println("Error guardando bonos de torneos: " + e.getMessage());
+        }
+    }
+
+    private Juego buscarJuegoPorNombre(List<Juego> juegos, String nombre) {
+        if (juegos == null || nombre == null) {
+            return null;
+        }
+
+        for (Juego j : juegos) {
+            if (j != null && j.getNombre() != null && j.getNombre().equalsIgnoreCase(nombre)) {
+                return j;
+            }
+        }
+
+        return null;
+    }
+
+    private Date parsearFechaSegura(String texto) {
+        try {
+            if (texto == null || texto.trim().isEmpty()) {
+                return null;
+            }
+
+            return sdf.parse(texto);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String formatearFechaSegura(Date fecha) {
+        if (fecha == null) {
+            return "";
+        }
+
+        return sdf.format(fecha);
+    }
+
+    private String limpiarCampo(String texto) {
+        if (texto == null) {
+            return "";
+        }
+
+        return texto.replace(";", ",");
+    }
+
+    private void restaurarFechaBono(BonoTorneoAmistoso bono, String nombreCampo, Date fecha) {
+        try {
+            Field campo = BonoTorneoAmistoso.class.getDeclaredField(nombreCampo);
+            campo.setAccessible(true);
+            campo.set(bono, fecha);
+        } catch (Exception e) {
+            System.err.println("No se pudo restaurar " + nombreCampo + " del bono: " + e.getMessage());
+        }
+    }
+
+    private void marcarBonoOtorgado(TorneoAmistoso torneo) {
+        try {
+            Field campo = TorneoAmistoso.class.getDeclaredField("bonoOtorgado");
+            campo.setAccessible(true);
+            campo.set(torneo, true);
+        } catch (Exception e) {
+            System.err.println("No se pudo restaurar bonoOtorgado del torneo amistoso: " + e.getMessage());
+        }
     }
 }

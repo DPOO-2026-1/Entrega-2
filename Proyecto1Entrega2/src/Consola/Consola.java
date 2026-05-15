@@ -80,6 +80,14 @@ public abstract class Consola {
                 this.cafeteria = cargada;
             }
 
+            // Después de cargar usuarios y juegos, reconstruimos el GestorTorneo.
+            // Esto es necesario porque los torneos NO están dentro de Cafeteria,
+            // sino en el atributo static gestorTorneo de Consola.
+            gestorTorneo = persistencia.cargarGestorTorneo(
+                    this.cafeteria.getUsuarios(),
+                    this.cafeteria.getJuegos()
+            );
+
             System.out.println("Datos cargados correctamente.");
         } catch (Exception e) {
             System.out.println("No se pudieron cargar los datos.");
@@ -90,6 +98,11 @@ public abstract class Consola {
     private void guardarDatos() {
         try {
             persistencia.guardarTodo(this.cafeteria);
+
+            // Guardamos también el estado del módulo de torneos:
+            // torneos, inscripciones, bonos y pagos.
+            persistencia.guardarGestorTorneo(gestorTorneo);
+
             System.out.println("Datos guardados correctamente.");
         } catch (Exception e) {
             System.out.println("No se pudieron guardar los datos.");
