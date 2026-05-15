@@ -153,7 +153,7 @@ public class GestorPersistencia {
     public void guardarUsuarios(List<Usuario> lista) {
         File archivo = new File(rutaArchivos + "usuarios.csv");
 
-        // CAMBIO: validación para evitar NullPointerException si no hay carpeta padre.
+        // CAMBIO: evita NullPointerException si no hay carpeta padre.
         if (archivo.getParentFile() != null) {
             archivo.getParentFile().mkdirs();
         }
@@ -164,76 +164,47 @@ public class GestorPersistencia {
                 if (u instanceof Cliente) {
                     Cliente c = (Cliente) u;
 
-                    // CAMBIO: ya NO se guarda puntosFidelidad porque eso exigía getPuntosFidelidad()
-                    // y además cargarUsuarios intentaba usar un constructor de Cliente que no existe.
-                    // Formato nuevo:
-                    // CLIENTE;login;password;nombre;esNino;esJoven
-                    //
-                    // Como no queremos tocar Cliente para agregar getters de esNino/esJoven,
-                    // guardamos false;false por defecto.
-                    pw.println("CLIENTE" + ";" 
-                            + c.getLogin() + ";" 
-                            + c.getPassword() + ";" 
-                            + c.getNombre() + ";" 
-                            + "false" + ";" 
+                    // CAMBIO: se guarda cliente con el formato compatible con cargarUsuarios.
+                    // No usamos getPuntosFidelidad porque tu constructor Cliente no carga por puntos.
+                    pw.println("CLIENTE" + ";"
+                            + c.getLogin() + ";"
+                            + c.getPassword() + ";"
+                            + c.getNombre() + ";"
+                            + "false" + ";"
                             + "false");
                 } 
                 else if (u instanceof Mesero) {
                     Mesero m = (Mesero) u;
 
-                    // CAMBIO: no llamamos directamente getCodigoDescuento()
-                    // porque en tu proyecto ese getter puede no existir y rompe compilación.
-                    String codigoDescuento = obtenerCodigoDescuentoSeguro(m);
-
-                    pw.println("MESERO" + ";" 
-                            + m.getLogin() + ";" 
-                            + m.getPassword() + ";" 
-                            + m.getNombre() + ";" 
-                            + codigoDescuento);
+                    // CAMBIO: NO usamos reflexión ni getCodigoDescuento().
+                    // Esto evita el error NoClassDefFoundError: CopiaPrestamo.
+                    // Se deja el código de descuento vacío para no tocar Empleado/Mesero.
+                    pw.println("MESERO" + ";"
+                            + m.getLogin() + ";"
+                            + m.getPassword() + ";"
+                            + m.getNombre() + ";");
                 } 
                 else if (u instanceof Cocinero) {
                     Cocinero c = (Cocinero) u;
 
-                    // CAMBIO: no llamamos directamente getCodigoDescuento()
-                    // para evitar error de compilación si Empleado no tiene ese getter.
-                    String codigoDescuento = obtenerCodigoDescuentoSeguro(c);
-
-                    pw.println("COCINERO" + ";" 
-                            + c.getLogin() + ";" 
-                            + c.getPassword() + ";" 
-                            + c.getNombre() + ";" 
-                            + codigoDescuento);
+                    // CAMBIO: NO usamos reflexión ni getCodigoDescuento().
+                    pw.println("COCINERO" + ";"
+                            + c.getLogin() + ";"
+                            + c.getPassword() + ";"
+                            + c.getNombre() + ";");
                 } 
                 else if (u instanceof Administrador) {
                     Administrador a = (Administrador) u;
 
-                    // CAMBIO: admin no necesita columna extra, pero dejamos el ; final
-                    // para mantener estructura similar.
-                    pw.println("ADMINISTRADOR" + ";" 
-                            + a.getLogin() + ";" 
-                            + a.getPassword() + ";" 
+                    pw.println("ADMINISTRADOR" + ";"
+                            + a.getLogin() + ";"
+                            + a.getPassword() + ";"
                             + a.getNombre() + ";");
                 }
             }
         } catch (Exception e) {
             System.err.println("Error guardando usuarios: " + e.getMessage());
         }
-    }
-
-    // CAMBIO: método auxiliar para evitar depender directamente de getCodigoDescuento().
-    // Esto permite que GestorPersistencia compile incluso si Empleado no tiene ese getter.
-    private String obtenerCodigoDescuentoSeguro(Empleado empleado) {
-        try {
-            Object resultado = empleado.getClass().getMethod("getCodigoDescuento").invoke(empleado);
-
-            if (resultado != null) {
-                return resultado.toString();
-            }
-        } catch (Exception e) {
-            // Si no existe el getter, se guarda vacío.
-        }
-
-        return "";
     }
 
     // 3. MÉTODOS DE JUEGOS

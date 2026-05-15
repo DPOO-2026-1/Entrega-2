@@ -3,34 +3,79 @@ package Consola;
 import java.util.List;
 
 import Torneo.Torneo;
-import Torneo.TorneoAmistoso;
-import Torneo.TorneoCompetitivo;
-import Usuario.Administrador;
+import Usuario.Cliente;
 import Usuario.DiaSemana;
-import Usuario.Empleado;
 import Usuario.Usuario;
-import World.Juego;
 
-public class ConsolaAdministrador extends Consola {
+public class ConsolaCliente extends Consola {
 
     public static void main(String[] args) {
-        ConsolaAdministrador consola = new ConsolaAdministrador();
+        ConsolaCliente consola = new ConsolaCliente();
         consola.iniciarAplicacion();
     }
 
     @Override
     protected boolean usuarioTienePermiso(Usuario usuario) {
-        return usuario instanceof Administrador;
+        return usuario instanceof Cliente;
+    }
+
+    @Override
+    protected boolean hacerLogin() {
+        System.out.println("=== CONSOLA CLIENTE ===");
+        System.out.println("1. Iniciar sesión");
+        System.out.println("2. Registrarse");
+
+        int opcion = pedirEntero("Seleccione una opción: ");
+
+        if (opcion == 1) {
+            return super.hacerLogin();
+        } else if (opcion == 2) {
+            return registrarCliente();
+        } else {
+            System.out.println("Opción inválida.");
+            return false;
+        }
+    }
+
+    private boolean registrarCliente() {
+        System.out.println();
+        System.out.println("=== REGISTRO DE CLIENTE ===");
+
+        String login = pedirCadena("Login: ");
+        String password = pedirCadena("Password: ");
+        String nombre = pedirCadena("Nombre: ");
+        boolean esNino = pedirBooleano("¿Es niño?");
+        boolean esJoven = pedirBooleano("¿Es joven?");
+
+        try {
+            Cliente cliente = cafeteria.getGestorUsuarios().registrarCliente(
+                    login,
+                    password,
+                    nombre,
+                    esNino,
+                    esJoven
+            );
+
+            this.usuarioActual = cliente;
+
+            System.out.println("Cliente registrado correctamente.");
+            System.out.println("Bienvenido, " + cliente.getNombre() + ".");
+
+            return true;
+        } catch (Exception e) {
+            System.out.println("No se pudo registrar el cliente.");
+            System.out.println("Detalle: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
     protected void mostrarMenu() {
         System.out.println();
-        System.out.println("=== MENÚ ADMINISTRADOR ===");
-        System.out.println("1. Registrar empleado");
-        System.out.println("2. Crear torneo amistoso");
-        System.out.println("3. Crear torneo competitivo");
-        System.out.println("4. Listar torneos por día");
+        System.out.println("=== MENÚ CLIENTE ===");
+        System.out.println("1. Listar torneos por día");
+        System.out.println("2. Inscribirse a torneo");
+        System.out.println("3. Desinscribirse de torneo");
         System.out.println("0. Salir");
     }
 
@@ -38,19 +83,15 @@ public class ConsolaAdministrador extends Consola {
     protected void ejecutarOpcion(int opcion) {
         switch (opcion) {
             case 1:
-                menuRegistrarEmpleado();
+                menuListarTorneosPorDia();
                 break;
 
             case 2:
-                menuCrearTorneoAmistoso();
+                menuInscribirTorneo();
                 break;
 
             case 3:
-                menuCrearTorneoCompetitivo();
-                break;
-
-            case 4:
-                menuListarTorneosPorDia();
+                menuDesinscribirTorneo();
                 break;
 
             default:
@@ -59,105 +100,7 @@ public class ConsolaAdministrador extends Consola {
         }
     }
 
-    private void menuRegistrarEmpleado() {
-        System.out.println();
-        System.out.println("=== REGISTRAR EMPLEADO ===");
-
-        String login = pedirCadena("Login: ");
-        String password = pedirCadena("Password: ");
-        String nombre = pedirCadena("Nombre: ");
-        String tipo = pedirCadena("Tipo de empleado (MESERO/COCINERO): ");
-        String codigoDescuento = pedirCadena("Código de descuento: ");
-
-        try {
-            Empleado empleado = cafeteria.getGestorUsuarios().registrarEmpleado(
-                    login,
-                    password,
-                    nombre,
-                    tipo,
-                    codigoDescuento
-            );
-
-            System.out.println("Empleado registrado correctamente: " + empleado.getNombre());
-        } catch (Exception e) {
-            System.out.println("No se pudo registrar el empleado.");
-            System.out.println("Detalle: " + e.getMessage());
-        }
-    }
-
-    // CAMBIO INTERFAZ: creación real de torneo amistoso usando GestorTorneo.
-    private void menuCrearTorneoAmistoso() {
-        System.out.println();
-        System.out.println("=== CREAR TORNEO AMISTOSO ===");
-
-        try {
-            String nombreJuego = pedirCadena("Nombre del juego: ");
-            Juego juego = cafeteria.buscarJuego(nombreJuego);
-
-            if (juego == null) {
-                System.out.println("No existe un juego con ese nombre.");
-                return;
-            }
-
-            DiaSemana dia = pedirDiaSemana("Día del torneo: ");
-            String hora = pedirCadena("Hora del torneo (ej. 15:30): ");
-            int cupoTotal = pedirEntero("Cupo total: ");
-            double valorBono = pedirDouble("Valor del bono: ");
-
-            TorneoAmistoso torneo = gestorTorneo.crearTorneoAmistoso(
-                    (Administrador) usuarioActual,
-                    juego,
-                    dia,
-                    hora,
-                    cupoTotal,
-                    valorBono
-            );
-
-            System.out.println("Torneo amistoso creado correctamente.");
-            imprimirTorneo(torneo);
-        } catch (Exception e) {
-            System.out.println("No se pudo crear el torneo amistoso.");
-            System.out.println("Detalle: " + e.getMessage());
-        }
-    }
-
-    // CAMBIO INTERFAZ: creación real de torneo competitivo usando GestorTorneo.
-    private void menuCrearTorneoCompetitivo() {
-        System.out.println();
-        System.out.println("=== CREAR TORNEO COMPETITIVO ===");
-
-        try {
-            String nombreJuego = pedirCadena("Nombre del juego: ");
-            Juego juego = cafeteria.buscarJuego(nombreJuego);
-
-            if (juego == null) {
-                System.out.println("No existe un juego con ese nombre.");
-                return;
-            }
-
-            DiaSemana dia = pedirDiaSemana("Día del torneo: ");
-            String hora = pedirCadena("Hora del torneo (ej. 15:30): ");
-            int cupoTotal = pedirEntero("Cupo total: ");
-            double tarifa = pedirDouble("Tarifa de entrada: ");
-
-            TorneoCompetitivo torneo = gestorTorneo.crearTorneoCompetitivo(
-                    (Administrador) usuarioActual,
-                    juego,
-                    dia,
-                    hora,
-                    cupoTotal,
-                    tarifa
-            );
-
-            System.out.println("Torneo competitivo creado correctamente.");
-            imprimirTorneo(torneo);
-        } catch (Exception e) {
-            System.out.println("No se pudo crear el torneo competitivo.");
-            System.out.println("Detalle: " + e.getMessage());
-        }
-    }
-
-    // CAMBIO INTERFAZ: listado de torneos por día.
+    // CAMBIO INTERFAZ: listado de torneos disponibles.
     private void menuListarTorneosPorDia() {
         System.out.println();
         System.out.println("=== LISTAR TORNEOS POR DÍA ===");
@@ -172,6 +115,53 @@ public class ConsolaAdministrador extends Consola {
 
         for (Torneo torneo : torneos) {
             imprimirTorneo(torneo);
+        }
+    }
+
+    // CAMBIO INTERFAZ: inscripción real delegada a GestorTorneo.
+    private void menuInscribirTorneo() {
+        System.out.println();
+        System.out.println("=== INSCRIBIRSE A TORNEO ===");
+
+        try {
+            DiaSemana dia = pedirDiaSemana("Día del torneo: ");
+            List<Torneo> torneos = gestorTorneo.getTorneos(dia);
+
+            if (torneos.isEmpty()) {
+                System.out.println("No hay torneos registrados para ese día.");
+                return;
+            }
+
+            for (Torneo torneo : torneos) {
+                imprimirTorneo(torneo);
+            }
+
+            String torneoId = pedirCadena("ID del torneo: ");
+            int cantidadCupos = pedirEntero("Cantidad de cupos a tomar (1 a 3): ");
+
+            gestorTorneo.inscribir(usuarioActual, torneoId, cantidadCupos);
+
+            System.out.println("Inscripción realizada correctamente.");
+        } catch (Exception e) {
+            System.out.println("No se pudo realizar la inscripción.");
+            System.out.println("Detalle: " + e.getMessage());
+        }
+    }
+
+    // CAMBIO INTERFAZ: desinscripción real delegada a GestorTorneo.
+    private void menuDesinscribirTorneo() {
+        System.out.println();
+        System.out.println("=== DESINSCRIBIRSE DE TORNEO ===");
+
+        try {
+            String torneoId = pedirCadena("ID del torneo: ");
+
+            gestorTorneo.desinscribir(usuarioActual, torneoId);
+
+            System.out.println("Desinscripción realizada correctamente.");
+        } catch (Exception e) {
+            System.out.println("No se pudo realizar la desinscripción.");
+            System.out.println("Detalle: " + e.getMessage());
         }
     }
 
