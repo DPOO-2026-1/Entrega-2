@@ -1,9 +1,12 @@
 package Consola;
 
+import java.text.Normalizer;
 import java.util.Scanner;
 
 import ModuloVenta.GestorVentas;
 import Persistencia.GestorPersistencia;
+import Torneo.GestorTorneo;
+import Usuario.DiaSemana;
 import Usuario.GestorUsuarios;
 import Usuario.Usuario;
 import World.Cafeteria;
@@ -16,6 +19,10 @@ public abstract class Consola {
     protected Usuario usuarioActual;
     protected boolean salir;
 
+    // CAMBIO INTERFAZ: gestor compartido por las consolas mientras corre la JVM.
+    // No se modifica Cafeteria ni Persistencia.
+    protected static GestorTorneo gestorTorneo = new GestorTorneo();
+
     public Consola() {
         this.scanner = new Scanner(System.in);
         this.persistencia = new GestorPersistencia("data/");
@@ -24,12 +31,11 @@ public abstract class Consola {
         GestorVentas gestorVentas = new GestorVentas(this.persistencia);
 
         this.cafeteria = Cafeteria.getInstance(80, "Board Nights", gestorUsuarios, gestorVentas);
-        
-        
+
         gestorUsuarios.setCafeteria(this.cafeteria);
         this.cafeteria.setGestorUsuarios(gestorUsuarios);
         this.cafeteria.setGestorVentas(gestorVentas);
-        
+
         this.usuarioActual = null;
         this.salir = false;
     }
@@ -117,7 +123,6 @@ public abstract class Consola {
     protected int pedirEntero(String mensaje) {
         while (true) {
             System.out.print(mensaje);
-
             String entrada = scanner.nextLine();
 
             try {
@@ -131,7 +136,6 @@ public abstract class Consola {
     protected double pedirDouble(String mensaje) {
         while (true) {
             System.out.print(mensaje);
-
             String entrada = scanner.nextLine();
 
             try {
@@ -159,6 +163,48 @@ public abstract class Consola {
                 System.out.println("Ingrese solamente s o n.");
             }
         }
+    }
+
+    // CAMBIO INTERFAZ: parser de días para no depender de que el usuario escriba perfecto.
+    protected DiaSemana pedirDiaSemana(String mensaje) {
+        while (true) {
+            String entrada = pedirCadena(mensaje);
+
+            DiaSemana dia = convertirDiaSemana(entrada);
+
+            if (dia != null) {
+                return dia;
+            }
+
+            System.out.println("Día inválido. Ejemplos válidos: Lunes, Martes, Miercoles, Jueves, Viernes, Sabado, Domingo.");
+        }
+    }
+
+    // CAMBIO INTERFAZ: convierte texto a DiaSemana ignorando mayúsculas y tildes.
+    private DiaSemana convertirDiaSemana(String texto) {
+        if (texto == null) {
+            return null;
+        }
+
+        String normalizadoUsuario = normalizarTexto(texto);
+
+        for (DiaSemana dia : DiaSemana.values()) {
+            String normalizadoEnum = normalizarTexto(dia.name());
+
+            if (normalizadoEnum.equals(normalizadoUsuario)) {
+                return dia;
+            }
+        }
+
+        return null;
+    }
+
+    // CAMBIO INTERFAZ: ayuda para comparar texto con tildes.
+    private String normalizarTexto(String texto) {
+        String sinTildes = Normalizer.normalize(texto, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+
+        return sinTildes.trim().replace(" ", "_").toUpperCase();
     }
 
     protected abstract boolean usuarioTienePermiso(Usuario usuario);

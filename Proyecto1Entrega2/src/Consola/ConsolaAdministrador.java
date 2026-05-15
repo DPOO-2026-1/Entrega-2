@@ -1,8 +1,15 @@
 package Consola;
 
+import java.util.List;
+
+import Torneo.Torneo;
+import Torneo.TorneoAmistoso;
+import Torneo.TorneoCompetitivo;
 import Usuario.Administrador;
+import Usuario.DiaSemana;
 import Usuario.Empleado;
 import Usuario.Usuario;
+import World.Juego;
 
 public class ConsolaAdministrador extends Consola {
 
@@ -21,7 +28,9 @@ public class ConsolaAdministrador extends Consola {
         System.out.println();
         System.out.println("=== MENÚ ADMINISTRADOR ===");
         System.out.println("1. Registrar empleado");
-        System.out.println("2. Crear torneo");
+        System.out.println("2. Crear torneo amistoso");
+        System.out.println("3. Crear torneo competitivo");
+        System.out.println("4. Listar torneos por día");
         System.out.println("0. Salir");
     }
 
@@ -33,7 +42,15 @@ public class ConsolaAdministrador extends Consola {
                 break;
 
             case 2:
-                menuCrearTorneo();
+                menuCrearTorneoAmistoso();
+                break;
+
+            case 3:
+                menuCrearTorneoCompetitivo();
+                break;
+
+            case 4:
+                menuListarTorneosPorDia();
                 break;
 
             default:
@@ -68,36 +85,107 @@ public class ConsolaAdministrador extends Consola {
         }
     }
 
-    private void menuCrearTorneo() {
+    // CAMBIO INTERFAZ: creación real de torneo amistoso usando GestorTorneo.
+    private void menuCrearTorneoAmistoso() {
         System.out.println();
-        System.out.println("=== CREAR TORNEO ===");
+        System.out.println("=== CREAR TORNEO AMISTOSO ===");
 
-        System.out.println("Este menú todavía depende de GestorTorneos.");
-        System.out.println("En el UML existe GestorTorneos, pero en el código actual del proyecto todavía no está implementado.");
-        System.out.println("Cuando implementes GestorTorneos, aquí se debe llamar a crearTorneoAmistoso() o crearTorneoCompetitivo().");
+        try {
+            String nombreJuego = pedirCadena("Nombre del juego: ");
+            Juego juego = cafeteria.buscarJuego(nombreJuego);
 
-        /*
-         * Código cuando se cree GestorTorneos
-         *
-         * String tipo = pedirCadena("Tipo de torneo (AMISTOSO/COMPETITIVO): ");
-         * String nombreJuego = pedirCadena("Nombre del juego: ");
-         * DiaSemana dia = DiaSemana.valueOf(pedirCadena("Día: ").toUpperCase());
-         * String hora = pedirCadena("Hora: ");
-         * int cupoTotal = pedirEntero("Cupo total: ");
-         *
-         * Juego juego = cafeteria.buscarJuego(nombreJuego);
-         *
-         * if (tipo.equalsIgnoreCase("AMISTOSO")) {
-         *     double valorBono = pedirDouble("Valor del bono: ");
-         *     cafeteria.getGestorTorneos().crearTorneoAmistoso(
-         *         (Administrador) usuarioActual, juego, dia, hora, cupoTotal, valorBono
-         *     );
-         * } else if (tipo.equalsIgnoreCase("COMPETITIVO")) {
-         *     double tarifa = pedirDouble("Tarifa de entrada: ");
-         *     cafeteria.getGestorTorneos().crearTorneoCompetitivo(
-         *         (Administrador) usuarioActual, juego, dia, hora, cupoTotal, tarifa
-         *     );
-         * }
-         */
+            if (juego == null) {
+                System.out.println("No existe un juego con ese nombre.");
+                return;
+            }
+
+            DiaSemana dia = pedirDiaSemana("Día del torneo: ");
+            String hora = pedirCadena("Hora del torneo (ej. 15:30): ");
+            int cupoTotal = pedirEntero("Cupo total: ");
+            double valorBono = pedirDouble("Valor del bono: ");
+
+            TorneoAmistoso torneo = gestorTorneo.crearTorneoAmistoso(
+                    (Administrador) usuarioActual,
+                    juego,
+                    dia,
+                    hora,
+                    cupoTotal,
+                    valorBono
+            );
+
+            System.out.println("Torneo amistoso creado correctamente.");
+            imprimirTorneo(torneo);
+        } catch (Exception e) {
+            System.out.println("No se pudo crear el torneo amistoso.");
+            System.out.println("Detalle: " + e.getMessage());
+        }
+    }
+
+    // CAMBIO INTERFAZ: creación real de torneo competitivo usando GestorTorneo.
+    private void menuCrearTorneoCompetitivo() {
+        System.out.println();
+        System.out.println("=== CREAR TORNEO COMPETITIVO ===");
+
+        try {
+            String nombreJuego = pedirCadena("Nombre del juego: ");
+            Juego juego = cafeteria.buscarJuego(nombreJuego);
+
+            if (juego == null) {
+                System.out.println("No existe un juego con ese nombre.");
+                return;
+            }
+
+            DiaSemana dia = pedirDiaSemana("Día del torneo: ");
+            String hora = pedirCadena("Hora del torneo (ej. 15:30): ");
+            int cupoTotal = pedirEntero("Cupo total: ");
+            double tarifa = pedirDouble("Tarifa de entrada: ");
+
+            TorneoCompetitivo torneo = gestorTorneo.crearTorneoCompetitivo(
+                    (Administrador) usuarioActual,
+                    juego,
+                    dia,
+                    hora,
+                    cupoTotal,
+                    tarifa
+            );
+
+            System.out.println("Torneo competitivo creado correctamente.");
+            imprimirTorneo(torneo);
+        } catch (Exception e) {
+            System.out.println("No se pudo crear el torneo competitivo.");
+            System.out.println("Detalle: " + e.getMessage());
+        }
+    }
+
+    // CAMBIO INTERFAZ: listado de torneos por día.
+    private void menuListarTorneosPorDia() {
+        System.out.println();
+        System.out.println("=== LISTAR TORNEOS POR DÍA ===");
+
+        DiaSemana dia = pedirDiaSemana("Día a consultar: ");
+        List<Torneo> torneos = gestorTorneo.getTorneos(dia);
+
+        if (torneos.isEmpty()) {
+            System.out.println("No hay torneos registrados para ese día.");
+            return;
+        }
+
+        for (Torneo torneo : torneos) {
+            imprimirTorneo(torneo);
+        }
+    }
+
+    // CAMBIO INTERFAZ: método auxiliar solo de impresión.
+    private void imprimirTorneo(Torneo torneo) {
+        System.out.println("--------------------------------");
+        System.out.println("ID: " + torneo.getIdTorneo());
+        System.out.println("Nombre: " + torneo.getNombre());
+        System.out.println("Día: " + torneo.getDia());
+        System.out.println("Juego: " + torneo.getJuegoTorneo().getNombre());
+        System.out.println("Cupo total: " + torneo.getCupoTotal());
+        System.out.println("Reservados disponibles: " + torneo.cuposDisponiblesReservados());
+        System.out.println("Regulares disponibles: " + torneo.cuposDisponiblesRegulares());
+        System.out.println("Estado: " + torneo.getEstado());
+        System.out.println("--------------------------------");
     }
 }

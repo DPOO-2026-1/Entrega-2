@@ -35,4 +35,8 @@ public class SolicitudTurno {
     public boolean isEsIntercambio() {
         return intercambio;
     }
+
+	public String getDescripcion() {
+		return descripcion;
+	}
 }
