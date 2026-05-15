@@ -338,4 +338,23 @@ public class GestorTorneo {
             throw new IllegalArgumentException("Solo un administrador puede realizar esta operación.");
         }
     }
+    
+    public void setCatalogoTorneos(List<Torneo> catalogoTorneos) {
+        if (catalogoTorneos == null) {
+            this.catalogoTorneos = new ArrayList<Torneo>();
+        } else {
+            this.catalogoTorneos = catalogoTorneos;
+        }
+    }
+    
+    // ===== CAMBIO HECHO =====
+    // Permite restaurar los bonos desde persistencia.
+    // ===== FIN CAMBIO =====
+    public void setBonos(List<BonoTorneoAmistoso> bonos) {
+     if (bonos == null) {
+         this.bonos = new ArrayList<BonoTorneoAmistoso>();
+     } else {
+         this.bonos = bonos;
+     }
+ }
 }

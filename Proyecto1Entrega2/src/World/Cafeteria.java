@@ -9,6 +9,7 @@ import Usuario.Mesero;
 import Usuario.DiaTurno;
 import ModuloVenta.GestorVentas;
 import ModuloVenta.Pasteleria;
+import Torneo.GestorTorneo;
 // Cambio para venta
 import ModuloVenta.Venta;
 
@@ -27,6 +28,7 @@ public class Cafeteria {
     private List<Prestamo> historialPrestamos;
     private GestorUsuarios gestorUsuarios;
     private GestorVentas gestorVentas;
+    private GestorTorneo gestorTorneo;
     // Cambio para venta
     private List<Venta> ventas;
 
@@ -36,6 +38,7 @@ public class Cafeteria {
         this.nombreEstablecimiento = nombre;
         this.gestorUsuarios = gu;
         this.gestorVentas = gv;
+        this.gestorTorneo = new GestorTorneo();
         this.juegos = new ArrayList<>();
         this.mesas = new ArrayList<>();
         this.historialPrestamos = new ArrayList<>();
@@ -224,4 +227,16 @@ public class Cafeteria {
     public Mesa buscarMesaDisponible(int personas, boolean hayNinos, boolean hayJovenes) {
         return getMesaDisponible(personas);
     }
+    
+ // ===== CAMBIO HECHO =====
+ // Getter y setter del gestor de torneos.
+ // Necesario para conectar Cafeteria con persistencia y consola.
+ // ===== FIN CAMBIO =====
+    public GestorTorneo getGestorTorneo() {
+     	return gestorTorneo;
+ 	}
+
+ 	public void setGestorTorneo(GestorTorneo gestorTorneo) {
+     	this.gestorTorneo = gestorTorneo;
+ 	}
 }

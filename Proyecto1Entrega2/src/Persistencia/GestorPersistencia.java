@@ -35,7 +35,6 @@ import java.util.List;
 //CAMBIO: imports necesarios para trabajar con Venta como está implementada actualmente
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.lang.reflect.Field;
 
 public class GestorPersistencia {
     
@@ -64,6 +63,9 @@ public class GestorPersistencia {
         cafe.setPrestamos(prestamos);
         cafe.setVentas(ventas);
         
+        GestorTorneo gestorTorneo = cargarGestorTorneo(usuarios, juegos);
+        cafe.setGestorTorneo(gestorTorneo);
+        
         return cafe;
     }
 
@@ -72,6 +74,7 @@ public class GestorPersistencia {
         guardarJuegos(cafe.getJuegos());
         guardarPrestamos(cafe.getPrestamos());
         guardarVentas(cafe.getVentas());
+        guardarGestorTorneo(cafe.getGestorTorneo());
     }
 
     // 2. MÉTODOS DE USUARIOS
