@@ -1,6 +1,8 @@
 package ModuloVenta;
 import java.time.*;
+import java.util.Date;
 
+import Torneo.BonoTorneoAmistoso;
 import Usuario.Usuario;
 
 public class Venta {
@@ -10,7 +12,7 @@ public class Venta {
 	private double impuestos;
 	private double propina;
 	private double total;
-	private int descuentoAplicado;
+	private double descuentoAplicado;
 	private int puntosGenerados;
 	private Usuario realizadaPor;
 	private ItemVenta[] itemsVenta;
@@ -85,7 +87,15 @@ public class Venta {
 	// ===== CAMBIO HECHO =====
     // Implementé descuento por código según el UML.
     // ===== FIN CAMBIO =====
-    public void aplicarDescuento(String codigo) {
+	public void aplicarDescuento(double porcentaje) {
+        if (porcentaje < 0 || porcentaje > 1) {
+            this.descuentoAplicado = 0; // seguridad
+        } else {
+            this.descuentoAplicado = porcentaje;
+        }
+    }
+	
+	public void aplicarDescuento(String codigo) {
         if (codigo == null) {
             this.descuentoAplicado = 0;
         } else if (codigo.equalsIgnoreCase("EMPLEADO")) {
@@ -135,7 +145,7 @@ public class Venta {
         return total;
     }
 
-    public int getDescuentoAplicado() {
+    public double getDescuentoAplicado() {
         return descuentoAplicado;
     }
 

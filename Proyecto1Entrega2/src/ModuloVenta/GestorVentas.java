@@ -14,10 +14,17 @@ public class GestorVentas{
     public GestorVentas(GestorPersistencia gestorPersistencia) {
         this.gestorPersistencia = gestorPersistencia;
     }
-
-    public void registrarVenta(Venta venta) {
+    
+    //Código corregido, puede presentar problemas
+    //Código anterior:public void registrarVenta(Venta venta) {
+    // Obtenemos la lista actual, agregamos la nueva y sobreescribimos el archivo
+    //List<Venta> ventas = gestorPersistencia.cargarVentas(venta.getRealizadaPor().getCafeteria().getUsuarios());
+    //ventas.add(venta);
+  //  gestorPersistencia.guardarVentas(ventas);
+//}
+    public void registrarVenta(Venta venta, List<Usuario> usuariosDelSistema) {
         // Obtenemos la lista actual, agregamos la nueva y sobreescribimos el archivo
-        List<Venta> ventas = gestorPersistencia.cargarVentas(venta.getRealizadaPor().getCafeteria().getUsuarios());
+        List<Venta> ventas = gestorPersistencia.cargarVentas(usuariosDelSistema);
         ventas.add(venta);
         gestorPersistencia.guardarVentas(ventas);
     }

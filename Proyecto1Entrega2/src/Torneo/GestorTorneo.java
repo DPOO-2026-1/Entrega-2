@@ -11,11 +11,11 @@ import Usuario.Empleado;
 import Usuario.Usuario;
 import World.Juego;
 
-public class GestorTorneos {
+public class GestorTorneo {
     private List<Torneo> catalogoTorneos;
     private List<BonoTorneoAmistoso> bonos;
 
-    public GestorTorneos() {
+    public GestorTorneo() {
         this.catalogoTorneos = new ArrayList<Torneo>();
         this.bonos = new ArrayList<BonoTorneoAmistoso>();
     }

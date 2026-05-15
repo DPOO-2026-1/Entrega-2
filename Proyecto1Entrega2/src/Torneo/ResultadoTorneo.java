@@ -14,7 +14,7 @@ public class ResultadoTorneo {
         this.premioMetalico = premioMetalico;
         this.bono = bono;
     }
-
+    
     public Torneo getTorneo() {
         return torneo;
     }

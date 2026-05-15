@@ -72,12 +72,4 @@ public class CopiaPrestamo {
     public void setJuegoAsociado(Juego juegoAsociado) {
         this.juegoAsociado = juegoAsociado;
     }
-
-    public void setEstaDisponible(boolean estaDisponible) {
-        this.estaDisponible = estaDisponible;
-    }
-
-    public int getVecesPrestado() {
-        return vecesPrestado;
-    }
 }

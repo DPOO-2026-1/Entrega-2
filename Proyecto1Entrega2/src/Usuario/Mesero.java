@@ -4,10 +4,11 @@ import java.time.LocalDateTime;
 
 import ModuloVenta.ItemVenta;
 import ModuloVenta.Venta;
+import World.CopiaPrestamo;
 import World.Juego;
 import World.Mesa;
+import World.Prestamo;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

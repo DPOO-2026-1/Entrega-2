@@ -1,5 +1,7 @@
 package Usuario;
 
+import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -67,15 +69,15 @@ public class Administrador extends Usuario {
         j.agregarCopiaPrestamo(nuevaPrestamo);
     }
     
-    public String generarInformeVentas(List<Venta> inventarioVentas, Date ini, Date fin, String granularidad) {
+    public String generarInformeVentas(List<Venta> inventarioVentas, ChronoLocalDateTime<?> ini, ChronoLocalDateTime<?> fin, String granularidad) {
         double totalSubtotal = 0.0;
         double totalImpuestos = 0.0;
         double totalPropinas = 0.0;
         double totalGeneral = 0.0;
 
         for (Venta v : inventarioVentas) {
-            Date fechaVenta = v.getFecha();
-            if (!fechaVenta.before(ini) && !fechaVenta.after(fin)) {
+            LocalDateTime fechaVenta = v.getFecha();
+            if (!fechaVenta.isBefore(ini) && !fechaVenta.isAfter(fin)) {
                 totalSubtotal += v.getSubtotal();
                 totalImpuestos += v.getImpuestos();
                 totalPropinas += v.getPropina();

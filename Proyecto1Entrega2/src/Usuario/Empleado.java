@@ -2,12 +2,10 @@ package Usuario;
 
 import World.CopiaPrestamo;
 import World.Prestamo;
-import Usuario.DiaTurno;
 import ModuloVenta.ItemVenta;
 import ModuloVenta.Venta;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Date;
 
 public abstract class Empleado extends Usuario {
     protected String codigoDescuento;
