@@ -1,13 +1,14 @@
 package Torneo;
 
 import java.util.Date;
+import java.util.List;
 
 import Usuario.DiaSemana;
 import Usuario.Usuario;
 import World.Juego;
 
 public abstract class Torneo {
-	private String id_torneo;
+	private String idTorneo;
 	private DiaSemana dia;
 	private Date fechaInicio;
 	private int duracionMin;
@@ -20,14 +21,14 @@ public abstract class Torneo {
 	private static final int REGLA_MAX_CUPOS__POR_USUARIO = 3;
 	private String nombre;
 	private Juego juegoTorneo;
-	private InscripcionTorneo inscripciones;
+	private List<InscripcionTorneo> inscripciones;
 	
 	//Builder
-	public Torneo(String id_torneo, DiaSemana dia, Date fechaInicio, int duracionMin, EstadoTorneo estado,
-			int cupoTotal, int cupoReservadoFanaticos, int cupoReservadoOcupado, int cupoOcupadoRegular,
-			Date fechaCreacion, String nombre, Juego juegoTorneo, InscripcionTorneo inscripciones) {
+	public Torneo(String idTorneo, DiaSemana dia, Date fechaInicio, int duracionMin, EstadoTorneo estado, int cupoTotal,
+			int cupoReservadoFanaticos, int cupoReservadoOcupado, int cupoOcupadoRegular, Date fechaCreacion,
+			String nombre, Juego juegoTorneo, List<InscripcionTorneo> inscripciones) {
 		super();
-		this.id_torneo = id_torneo;
+		this.idTorneo = idTorneo;
 		this.dia = dia;
 		this.fechaInicio = fechaInicio;
 		this.duracionMin = duracionMin;
@@ -44,12 +45,12 @@ public abstract class Torneo {
 	
 	//Getters y Setters
 
-	public String getId_torneo() {
-		return id_torneo;
+	public String getIdTorneo() {
+		return idTorneo;
 	}
 
-	public void setId_torneo(String id_torneo) {
-		this.id_torneo = id_torneo;
+	public void setIdTorneo(String idTorneo) {
+		this.idTorneo = idTorneo;
 	}
 
 	public DiaSemana getDia() {
@@ -140,11 +141,11 @@ public abstract class Torneo {
 		this.juegoTorneo = juegoTorneo;
 	}
 
-	public InscripcionTorneo getInscripciones() {
+	public List<InscripcionTorneo> getInscripciones() {
 		return inscripciones;
 	}
 
-	public void setInscripciones(InscripcionTorneo inscripciones) {
+	public void setInscripciones(List<InscripcionTorneo> inscripciones) {
 		this.inscripciones = inscripciones;
 	}
 
@@ -167,18 +168,61 @@ public abstract class Torneo {
 	}
 	
 	public boolean validarCupoMaximoPorUsuario(int cantidad) {
-		
+		return cantidad > 0 && cantidad <= REGLA_MAX_CUPOS__POR_USUARIO;
 	}
 	
-	public boolean puedeInscribirse(Usuario u, int cantidad) {
-		
+	//Excepciones para inscribir
+	
+	public class CupoInsuficienteException extends Exception {
+	    public CupoInsuficienteException(String mensaje) {
+	        super(mensaje);
+	    }
+	}
+
+	public class UsuarioYaInscritoException extends Exception {
+	    public UsuarioYaInscritoException(String mensaje) {
+	        super(mensaje);
+	    }
 	}
 	
-	public void inscribir(Usuario u, int cantidad) {
-		if (esFanatico(u) && cuposDisponiblesReservados() >= cantidad) {
-			cupoReservadoOcupado += cantidad;
-			inscripciones.add()
+	public void puedeInscribirse(InscripcionTorneo inscripcion) throws Exception {
+		if (cuposDisponiblesReservados() < inscripcion.getCuposReservados() && (cuposDisponiblesRegulares() < inscripcion.getCuposReservados() || cuposDisponiblesRegulares() < inscripcion.getCuposRegulares())) {
+			throw new CupoInsuficienteException("No hay suficientes cupos disponibles");
+		}
+		
+		for (Usuario u : inscripcion.getUsuarios()) {
+	        for (InscripcionTorneo existente : inscripciones) {
+	            if (existente.getUsuarios().contains(u)) {
+	                throw new UsuarioYaInscritoException("El usuario " + u.getNombre() + " tiene una inscripción activa");
+	            }
+	        }
+	    }
+	}
+	
+	public void inscribir(InscripcionTorneo inscripcion) throws Exception {
+		try {
+			puedeInscribirse(inscripcion);
+			inscripciones.add(inscripcion);
+			cupoReservadoOcupado += inscripcion.getCuposReservados();
+	        cupoOcupadoRegular += inscripcion.getCuposRegulares();
+			System.out.println("Éxito");
+		}
+		catch (CupoInsuficienteException | UsuarioYaInscritoException e){
+			System.out.println("Error: " + e.getMessage());
 		}
 	}
 	
+	public void desinscribir(Usuario u, int cantidad) {	
+	}
+	
+	public void desinscribir(InscripcionTorneo inscripcion) {
+		if (inscripciones.remove(inscripcion)) {
+			cupoReservadoOcupado -= inscripcion.getCuposReservados();
+	        cupoOcupadoRegular -= inscripcion.getCuposRegulares();
+	        System.out.println("Inscripción eliminada y cupos liberados");
+		}
+		else {
+			System.out.println("La inscripción no existe en la lista");
+		}
+	}
 }
