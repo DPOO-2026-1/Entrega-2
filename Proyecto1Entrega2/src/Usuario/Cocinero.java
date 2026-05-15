@@ -16,7 +16,7 @@ public class Cocinero extends Empleado {
     @Override
     public Venta realizarCompra(List<ItemVenta> items) {
         Venta v = new Venta(new Date(), items.toArray(new ItemVenta[0]), this);
-        v.aplicarDescuento(0.20); // 20% descuento empleado 
+        v.aplicarDescuento("EMPLEADO"); // 20% descuento empleado 
         return v;
     }
 

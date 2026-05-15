@@ -70,7 +70,7 @@ public class Cliente extends Usuario {
 
         // Si el código es válido (10% de descuento compartido por empleado) 
         if (codigoDesc != null && !codigoDesc.isEmpty()) {
-            nuevaVenta.aplicarDescuento(0.10);
+            nuevaVenta.aplicarDescuento("CLIENTE");
         }
 
         // Calcular puntos generados (1% del total de la venta) 
