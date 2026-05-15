@@ -1,3 +1,5 @@
+package Pruebas;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -5,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import Torneo.TorneoAmistoso;
 import Torneo.EstadoTorneo;
+import Torneo.GestorTorneo;
 import Torneo.InscripcionTorneo;
 import Usuario.DiaSemana;
 import Usuario.Cliente;
@@ -29,16 +32,17 @@ public class PruebaDescuentoCuposRegulares {
     @Test
     @DisplayName("Input: Torneo con 10 cupos. Cliente normal toma 2 cupos. Outcome: Inscripción exitosa y descuento correcto.")
     public void testDescuentoCuposRegulares() {
-        List<Usuario> usuarios = new ArrayList<>();
-        usuarios.add(clienteNormal);
-        
-        // Toma 2 cupos regulares
-        InscripcionTorneo inscripcion = new InscripcionTorneo("I-001", new Date(), usuarios, 2, 0, 2, false, 0, true, false);
-        
-        assertDoesNotThrow(() -> torneo.inscribir(inscripcion), "La inscripción debe ser exitosa y no arrojar excepciones.");
-        
-        // Los cupos regulares del torneo bajan de 8 a 6
-        assertEquals(2, torneo.getCupoOcupadoRegular(), "Se deben registrar 2 cupos ocupados regulares.");
-        assertEquals(6, torneo.cuposDisponiblesRegulares(), "Deben quedar 6 cupos regulares disponibles.");
+        GestorTorneo gestor = new GestorTorneo();
+        gestor.getCatalogoTorneos().add(torneo); // registrar torneo en el gestor
+
+        // Acción: inscribir cliente normal con 2 cupos
+        assertDoesNotThrow(() -> gestor.inscribir(clienteNormal, torneo.getIdTorneo(), 2),
+            "La inscripción debe ser exitosa y no arrojar excepciones.");
+
+        // Verificación: los cupos regulares del torneo bajan de 8 a 6
+        assertEquals(2, torneo.getCupoOcupadoRegular(),
+            "Se deben registrar 2 cupos ocupados regulares.");
+        assertEquals(6, torneo.cuposDisponiblesRegulares(),
+            "Deben quedar 6 cupos regulares disponibles.");
     }
 }

@@ -1,3 +1,5 @@
+package Pruebas;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -5,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import Torneo.TorneoAmistoso;
 import Torneo.EstadoTorneo;
+import Torneo.GestorTorneo;
 import Torneo.InscripcionTorneo;
 import Usuario.DiaSemana;
 import Usuario.Cliente;
@@ -34,19 +37,22 @@ public class PruebaReglaFanaticosTorneo {
     @Test
     @DisplayName("Input: Cliente fanático toma 1 cupo. Outcome: Inscripción usa cupo reservado. Queda 1 reservado y 8 regulares.")
     public void testUsoCupoReservado() {
-        // Verificar que el sistema lo reconoce como fanático
-        assertTrue(torneo.esFanatico(clienteFanatico), "El cliente debe ser reconocido como fanático del juego del torneo.");
+        // Crear gestor y registrar torneo
+        GestorTorneo gestorTorneo = new GestorTorneo();
+        gestorTorneo.getCatalogoTorneos().add(torneo); // registrar torneo en el catálogo
 
-        List<Usuario> usuarios = new ArrayList<>();
-        usuarios.add(clienteFanatico);
-        
+        // Verificar que el sistema lo reconoce como fanático
+        assertTrue(torneo.esFanatico(clienteFanatico),
+            "El cliente debe ser reconocido como fanático del juego del torneo.");
+
         // Fanático toma 1 cupo reservado
-        InscripcionTorneo inscripcion = new InscripcionTorneo("I-001", new Date(), usuarios, 1, 1, 0, false, 0, true, false);
-        
-        assertDoesNotThrow(() -> torneo.inscribir(inscripcion), "La inscripción del fanático debe ser exitosa.");
-        
+        assertDoesNotThrow(() -> gestorTorneo.inscribir(clienteFanatico, torneo.getIdTorneo(), 1),
+            "La inscripción del fanático debe ser exitosa.");
+
         // Queda 1 reservado y 8 regulares
-        assertEquals(1, torneo.cuposDisponiblesReservados(), "Debe quedar 1 cupo reservado disponible.");
-        assertEquals(8, torneo.cuposDisponiblesRegulares(), "Deben quedar 8 cupos regulares disponibles.");
+        assertEquals(1, torneo.cuposDisponiblesReservados(),
+            "Debe quedar 1 cupo reservado disponible.");
+        assertEquals(8, torneo.cuposDisponiblesRegulares(),
+            "Deben quedar 8 cupos regulares disponibles.");
     }
 }

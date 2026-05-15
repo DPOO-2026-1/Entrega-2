@@ -1,3 +1,5 @@
+package Pruebas;
+
 import Usuario.GestorUsuarios;
 import Usuario.Usuario;
 import World.Cafeteria;

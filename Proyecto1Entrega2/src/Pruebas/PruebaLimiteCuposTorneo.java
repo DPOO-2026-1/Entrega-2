@@ -1,3 +1,5 @@
+package Pruebas;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -28,6 +30,6 @@ public class PruebaLimiteCuposTorneo {
         
         // Los cupos del torneo no se modifican
         assertEquals(0, torneo.getCupoOcupadoRegular(), "Los cupos ocupados deben seguir en 0.");
-        assertEquals(0, torneo.getCupoReservadoOcupado(), "Los cupos reservados ocupados deben seguir en 0.");
+        assertEquals(0, torneo.getCupoReservadoFanaticos(), "Los cupos reservados ocupados deben seguir en 0.");
     }
 }
