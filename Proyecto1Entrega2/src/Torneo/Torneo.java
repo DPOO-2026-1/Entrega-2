@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import Usuario.DiaSemana;
-import Usuario.DiaTurno;
-import Usuario.Empleado;
 import Usuario.Usuario;
 import World.Juego;
+import Usuario.DiaSemana;
 
 public abstract class Torneo {
     private String idTorneo;
@@ -18,7 +16,7 @@ public abstract class Torneo {
     private EstadoTorneo estado;
     private int cupoTotal;
     private int cupoReservadoFanaticos;
-    private int cupoReservadoOcupado;
+    private int cupoOcupadoReservado;
     private int cupoOcupadoRegular;
     private Date fechaCreacion;
     private static final int REGLA_MAX_CUPOS_POR_USUARIO = 3;
@@ -27,7 +25,7 @@ public abstract class Torneo {
     private List<InscripcionTorneo> inscripciones;
 
     public Torneo(String idTorneo, DiaSemana dia, Date fechaInicio, int duracionMin, EstadoTorneo estado,
-            int cupoTotal, int cupoReservadoFanaticos, int cupoReservadoOcupado, int cupoOcupadoRegular,
+            int cupoTotal, int cupoReservadoFanaticos, int cupoOcupadoReservado, int cupoOcupadoRegular,
             Date fechaCreacion, String nombre, Juego juegoTorneo, List<InscripcionTorneo> inscripciones) {
 
         this.idTorneo = idTorneo;
@@ -37,7 +35,7 @@ public abstract class Torneo {
         this.estado = estado != null ? estado : EstadoTorneo.PROGRAMADO;
         this.cupoTotal = cupoTotal;
         this.cupoReservadoFanaticos = cupoReservadoFanaticos;
-        this.cupoReservadoOcupado = cupoReservadoOcupado;
+        this.cupoOcupadoReservado = cupoOcupadoReservado;
         this.cupoOcupadoRegular = cupoOcupadoRegular;
         this.fechaCreacion = fechaCreacion != null ? fechaCreacion : new Date();
         this.nombre = nombre;
@@ -46,15 +44,11 @@ public abstract class Torneo {
     }
 
     public int cuposDisponiblesReservados() {
-        return Math.max(0, cupoReservadoFanaticos - cupoReservadoOcupado);
+        return Math.max(0, cupoReservadoFanaticos - cupoOcupadoReservado);
     }
 
     public int cuposDisponiblesRegulares() {
         return Math.max(0, cupoTotal - cupoReservadoFanaticos - cupoOcupadoRegular);
-    }
-
-    public int cuposDisponiblesTotales() {
-        return cuposDisponiblesReservados() + cuposDisponiblesRegulares();
     }
 
     public boolean esFanatico(Usuario u) {
@@ -66,107 +60,15 @@ public abstract class Torneo {
     }
 
     public boolean puedeInscribirse(Usuario u, int cantidad) {
-        if (u == null || !validarCupoMaximoPorUsuario(cantidad)) {
+        if (u == null) {
             return false;
         }
 
-        if (buscarInscripcion(u) != null) {
+        if (!validarCupoMaximoPorUsuario(cantidad)) {
             return false;
         }
 
-        if (u instanceof Empleado && empleadoTieneTurnoEseDia((Empleado) u)) {
-            return false;
-        }
-
-        return cuposDisponiblesTotales() >= cantidad;
-    }
-
-    public void puedeInscribirse(InscripcionTorneo inscripcion) throws Exception {
-        if (inscripcion == null) {
-            throw new IllegalArgumentException("La inscripción no puede ser null.");
-        }
-
-        if (!validarCupoMaximoPorUsuario(inscripcion.getCantidadCupos())) {
-            throw new IllegalArgumentException("La inscripción supera el máximo de 3 cupos por usuario.");
-        }
-
-        if (inscripcion.getCuposReservados() > cuposDisponiblesReservados()) {
-            throw new IllegalStateException("No hay suficientes cupos reservados disponibles.");
-        }
-
-        if (inscripcion.getCuposRegulares() > cuposDisponiblesRegulares()) {
-            throw new IllegalStateException("No hay suficientes cupos regulares disponibles.");
-        }
-
-        for (Usuario u : inscripcion.getUsuarios()) {
-            if (buscarInscripcion(u) != null) {
-                throw new IllegalStateException("El usuario " + u.getNombre() + " ya tiene una inscripción activa.");
-            }
-
-            if (u instanceof Empleado && empleadoTieneTurnoEseDia((Empleado) u)) {
-                throw new IllegalStateException("El empleado " + u.getNombre() + " tiene turno el día del torneo.");
-            }
-        }
-    }
-
-    public void inscribir(InscripcionTorneo inscripcion) throws Exception {
-        puedeInscribirse(inscripcion);
-
-        inscripciones.add(inscripcion);
-        cupoReservadoOcupado += inscripcion.getCuposReservados();
-        cupoOcupadoRegular += inscripcion.getCuposRegulares();
-    }
-
-    public void desinscribir(Usuario u, int cantidad) {
-        InscripcionTorneo inscripcion = buscarInscripcion(u);
-
-        if (inscripcion != null) {
-            desinscribir(inscripcion);
-        }
-    }
-
-    public void desinscribir(InscripcionTorneo inscripcion) {
-        if (inscripcion != null && inscripciones.remove(inscripcion)) {
-            cupoReservadoOcupado = Math.max(0, cupoReservadoOcupado - inscripcion.getCuposReservados());
-            cupoOcupadoRegular = Math.max(0, cupoOcupadoRegular - inscripcion.getCuposRegulares());
-        }
-    }
-
-    public InscripcionTorneo buscarInscripcion(Usuario usuario) {
-        if (usuario == null) {
-            return null;
-        }
-
-        for (InscripcionTorneo inscripcion : inscripciones) {
-            if (inscripcion.getUsuarios().contains(usuario)) {
-                return inscripcion;
-            }
-
-            for (Usuario u : inscripcion.getUsuarios()) {
-                if (u.getLogin().equals(usuario.getLogin())) {
-                    return inscripcion;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private boolean empleadoTieneTurnoEseDia(Empleado empleado) {
-        if (empleado == null || empleado.consultarDiasAsignados() == null) {
-            return false;
-        }
-
-        for (DiaTurno turno : empleado.consultarDiasAsignados()) {
-            if (turno != null
-                    && turno.getDia() != null
-                    && DiaSemana.normalizar(turno.getDia()).equals(DiaSemana.normalizar(this.dia))
-                    && turno.estaAsignado()) {
-                return true;
-            }
-        }
-
-        return false;
+        return cuposDisponiblesReservados() + cuposDisponiblesRegulares() >= cantidad;
     }
 
     public String getIdTorneo() {
@@ -225,12 +127,12 @@ public abstract class Torneo {
         this.cupoReservadoFanaticos = cupoReservadoFanaticos;
     }
 
-    public int getCupoReservadoOcupado() {
-        return cupoReservadoOcupado;
+    public int getCupoOcupadoReservado() {
+        return cupoOcupadoReservado;
     }
 
-    public void setCupoReservadoOcupado(int cupoReservadoOcupado) {
-        this.cupoReservadoOcupado = cupoReservadoOcupado;
+    public void setCupoOcupadoReservado(int cupoOcupadoReservado) {
+        this.cupoOcupadoReservado = cupoOcupadoReservado;
     }
 
     public int getCupoOcupadoRegular() {
