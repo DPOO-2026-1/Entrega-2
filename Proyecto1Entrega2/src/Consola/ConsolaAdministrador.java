@@ -10,6 +10,8 @@ import Usuario.DiaSemana;
 import Usuario.Empleado;
 import Usuario.Usuario;
 import World.Juego;
+import Torneo.ResultadoTorneo;
+import Torneo.BonoTorneoAmistoso;
 
 public class ConsolaAdministrador extends Consola {
 
@@ -208,11 +210,12 @@ public class ConsolaAdministrador extends Consola {
             return;
         }
 
-        ResultadoTorneo resultado = getGestorTorneo().finalizarTorneo(
-                (Administrador) usuarioActual,
-                torneoId,
-                ganador
-        );
+    
+     ResultadoTorneo resultado = gestorTorneo.finalizarTorneo(
+             (Administrador) usuarioActual,
+             torneoId,
+             ganador
+     );
 
         System.out.println("Torneo finalizado correctamente.");
         System.out.println("Ganador: " + resultado.getGanador().getNombre());
