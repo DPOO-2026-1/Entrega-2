@@ -11,11 +11,11 @@ import Usuario.Empleado;
 import Usuario.Usuario;
 import World.Juego;
 
-public class GestorTorneos {
+public class GestorTorneo {
     private List<Torneo> catalogoTorneos;
     private List<BonoTorneoAmistoso> bonos;
 
-    public GestorTorneos() {
+    public GestorTorneo() {
         this.catalogoTorneos = new ArrayList<Torneo>();
         this.bonos = new ArrayList<BonoTorneoAmistoso>();
     }
@@ -189,7 +189,7 @@ public class GestorTorneos {
     }
 
     // ===== CAMBIO HECHO =====
-    // La lógica de desinscripción también queda solamente en GestorTorneos.
+    // La lógica de desinscripción también queda solamente en GestorTorneo.
     // Busca la inscripción, la elimina y devuelve los cupos al torneo.
     // ===== FIN CAMBIO =====
     public void desinscribir(Usuario usuario, String torneoId) {
@@ -292,7 +292,7 @@ public class GestorTorneos {
     }
 
     // ===== CAMBIO HECHO =====
-    // Este método queda privado porque es una operación interna del GestorTorneos.
+    // Este método queda privado porque es una operación interna del GestorTorneo
     // Antes esta búsqueda estaba mal ubicada dentro de Torneo.
     // ===== FIN CAMBIO =====
     private InscripcionTorneo buscarInscripcion(Torneo torneo, Usuario usuario) {
