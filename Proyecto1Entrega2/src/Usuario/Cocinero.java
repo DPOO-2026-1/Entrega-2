@@ -1,5 +1,6 @@
 package Usuario;
 
+import World.Cafeteria;
 import World.CopiaPrestamo;
 import World.Prestamo;
 import ModuloVenta.ItemVenta;
@@ -15,22 +16,36 @@ public class Cocinero extends Empleado {
 
     @Override
     public Venta realizarCompra(List<ItemVenta> items) {
+        if (items == null || items.isEmpty()) {
+            throw new IllegalArgumentException("Debe haber al menos un ítem en la compra.");
+        }
         Venta v = new Venta(new Date(), items.toArray(new ItemVenta[0]), this);
-        v.aplicarDescuento("EMPLEADO"); // 20% descuento empleado 
+        v.aplicarDescuento("EMPLEADO");
+        
+        v.calcularSubtotal();
+        v.calcularImpuestosTotales();
+        v.calcularTotal();
+        v.calcularPuntosGenerados();
+        
+        Cafeteria.getInstance().getVentas().add(v);
+        
         return v;
     }
 
     @Override
     public Prestamo alquilarJuego(CopiaPrestamo copia) {
-        if (this.estaDeTurno) {
-            throw new IllegalStateException("No se puede alquilar en turno laboral."); 
+    	if (estaEnTurno()) {
+            throw new IllegalStateException("No puedes alquilar un juego mientras estás de turno.");
+        }
+    	if (copia == null) {
+            throw new IllegalArgumentException("La copia no puede ser nula.");
         }
         if (!copia.estaDisponible()) {
-            throw new IllegalStateException("Copia no disponible.");
+            throw new IllegalStateException("La copia del juego no está disponible.");
         }
         
         Prestamo p = new Prestamo(new Date(), copia, null, this); 
-        copia.prestar();
+        Cafeteria.getInstance().getHistorialPrestamos().add(p);
         return p;
     }
 }	

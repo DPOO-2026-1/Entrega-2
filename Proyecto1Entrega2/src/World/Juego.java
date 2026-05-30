@@ -89,4 +89,53 @@ public class Juego {
     public int getMaxJugadores() { return maxJugadores; }
     public int getEdadMinima() { return edadMinima; }
     public boolean isEsDificil() { return esDificil; }
+
+	public List<CopiaPrestamo> getCopiasParaPrestamo() {
+		return copiasParaPrestamo;
+	}
+
+	public void setCopiasParaPrestamo(List<CopiaPrestamo> copiasParaPrestamo) {
+		this.copiasParaPrestamo = copiasParaPrestamo;
+	}
+
+	public List<CopiaVenta> getCopiasParaVenta() {
+		return copiasParaVenta;
+	}
+
+	public void setCopiasParaVenta(List<CopiaVenta> copiasParaVenta) {
+		this.copiasParaVenta = copiasParaVenta;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public void setAnioPublicacion(int anioPublicacion) {
+		this.anioPublicacion = anioPublicacion;
+	}
+
+	public void setEmpresaMatriz(String empresaMatriz) {
+		this.empresaMatriz = empresaMatriz;
+	}
+
+	public void setMinJugadores(int minJugadores) {
+		this.minJugadores = minJugadores;
+	}
+
+	public void setMaxJugadores(int maxJugadores) {
+		this.maxJugadores = maxJugadores;
+	}
+
+	public void setEdadMinima(int edadMinima) {
+		this.edadMinima = edadMinima;
+	}
+
+	public void setCategoria(String categoria) {
+		this.categoria = categoria;
+	}
+
+	public void setEsDificil(boolean esDificil) {
+		this.esDificil = esDificil;
+	}
+    
 }

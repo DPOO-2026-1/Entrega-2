@@ -10,4 +10,20 @@ public class Bebida extends ProductoComestible{
         this.esCaliente = esCaliente;
         this.esAlcoholica = esAlcoholica;
     }
+
+	public boolean isEsCaliente() {
+		return esCaliente;
+	}
+
+	public void setEsCaliente(boolean esCaliente) {
+		this.esCaliente = esCaliente;
+	}
+
+	public boolean isEsAlcoholica() {
+		return esAlcoholica;
+	}
+
+	public void setEsAlcoholica(boolean esAlcoholica) {
+		this.esAlcoholica = esAlcoholica;
+	}
 }

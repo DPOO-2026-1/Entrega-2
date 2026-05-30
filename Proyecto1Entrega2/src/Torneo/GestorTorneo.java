@@ -154,11 +154,16 @@ public class GestorTorneo {
 
         if (torneo instanceof TorneoCompetitivo) {
             TorneoCompetitivo competitivo = (TorneoCompetitivo) torneo;
-
-            montoPagado = competitivo.getTarifaEntrada() * cantidadCupos;
+            
+            if (usuario instanceof Empleado) {
+            	montoPagado = 0.0;
+                elegiblePremioMetalico = false;
+            }
+            else {
+            	montoPagado = competitivo.getTarifaEntrada() * cantidadCupos;
+            	elegiblePremioMetalico = true;
+            }
             competitivo.registrarPago(usuario, montoPagado);
-
-            elegiblePremioMetalico = competitivo.esElegiblePremioMetalico(usuario);
         }
 
         List<Usuario> usuariosInscritos = new ArrayList<Usuario>();
@@ -262,11 +267,14 @@ public class GestorTorneo {
         if (juego.getCopiasPrestamo() == null) {
             throw new IllegalArgumentException("El juego no tiene lista de copias para préstamo.");
         }
+        
+        long copiasDisponibles = juego.getCopiasPrestamo().stream().filter(c -> c != null && c.estaDisponible()).count();
 
-        if (juego.getCopiasPrestamo().size() < cupoTotal) {
-            throw new IllegalArgumentException("No hay suficientes copias de préstamo para el cupo del torneo.");
+        if (copiasDisponibles < cupoTotal) {
+            throw new IllegalArgumentException(
+                "No hay suficientes copias disponibles para préstamo. Disponibles: "
+                + copiasDisponibles + ", requeridas: " + cupoTotal);
         }
-
         return true;
     }
 

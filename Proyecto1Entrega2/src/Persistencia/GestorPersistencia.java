@@ -50,7 +50,12 @@ public class GestorPersistencia {
     // 1. Cargar y Guardar
 
     public Cafeteria cargarTodo() {
-        Cafeteria cafe = Cafeteria.getInstance(); 
+        Cafeteria cafe = Cafeteria.getInstance();
+        
+        if (cafe == null) {
+            throw new IllegalStateException(
+                "La Cafeteria no ha sido inicializada. Llama a Cafeteria.getInstance(cap, nom, gu, gv) antes de cargarTodo().");
+        }
         
         // Primero los independientes, luego los dependientes
         List<Usuario> usuarios = cargarUsuarios();
@@ -111,22 +116,17 @@ public class GestorPersistencia {
                 String nombre = p[3].trim();
 
                 if (tipo.equals("CLIENTE")) {
-                    // CAMBIO: antes hacías new Cliente(login, password, nombre, puntos),
-                    // pero ese constructor NO existe en tu clase Cliente.
-                    // Ahora se usa el constructor correcto:
-                    // Cliente(login, password, nombre, boolean esNino, boolean esJoven)
-
-                    boolean esNino = false;
-                    boolean esJoven = false;
-
-                    // Formato nuevo recomendado:
-                    // CLIENTE;login;password;nombre;false;true
-                    if (p.length >= 6) {
-                        esNino = Boolean.parseBoolean(p[4]);
-                        esJoven = Boolean.parseBoolean(p[5]);
+                    boolean esNino = p.length >= 5 && Boolean.parseBoolean(p[4]);
+                    boolean esJoven = p.length >= 6 && Boolean.parseBoolean(p[5]);
+                    Cliente c = new Cliente(login, password, nombre, esNino, esJoven);
+                    if (p.length >= 7 && !p[6].trim().isEmpty()) {
+                        try {
+                            c.setPuntosFidelidad(Integer.parseInt(p[6].trim()));
+                        } catch (NumberFormatException e) {
+                            // si el campo está corrupto, se deja en 0
+                        }
                     }
-
-                    usuarios.add(new Cliente(login, password, nombre, esNino, esJoven));
+                    usuarios.add(c);
                 } 
                 else if (tipo.equals("MESERO")) {
                     // CAMBIO: se valida si existe la columna extra.
@@ -173,37 +173,31 @@ public class GestorPersistencia {
         try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
             for (Usuario u : lista) {
 
-                if (u instanceof Cliente) {
-                    Cliente c = (Cliente) u;
-
-                    // CAMBIO: se guarda cliente con el formato compatible con cargarUsuarios.
-                    // No usamos getPuntosFidelidad porque tu constructor Cliente no carga por puntos.
-                    pw.println("CLIENTE" + ";"
-                            + c.getLogin() + ";"
-                            + c.getPassword() + ";"
-                            + c.getNombre() + ";"
-                            + "false" + ";"
-                            + "false");
-                } 
+            	if (u instanceof Cliente) {
+            	    Cliente c = (Cliente) u;
+            	    pw.println("CLIENTE" + ";"
+            	            + c.getLogin() + ";"
+            	            + c.getPassword() + ";"
+            	            + c.getNombre() + ";"
+            	            + c.isEsNinio() + ";"
+            	            + c.isEsJoven() + ";"
+            	            + c.getPuntosFidelidad()); // columna nueva
+            	}
                 else if (u instanceof Mesero) {
                     Mesero m = (Mesero) u;
-
-                    // CAMBIO: NO usamos reflexión ni getCodigoDescuento().
-                    // Esto evita el error NoClassDefFoundError: CopiaPrestamo.
-                    // Se deja el código de descuento vacío para no tocar Empleado/Mesero.
                     pw.println("MESERO" + ";"
                             + m.getLogin() + ";"
                             + m.getPassword() + ";"
-                            + m.getNombre() + ";");
+                            + m.getNombre() + ";"
+                            + m.getCodigoDescuento());
                 } 
                 else if (u instanceof Cocinero) {
                     Cocinero c = (Cocinero) u;
-
-                    // CAMBIO: NO usamos reflexión ni getCodigoDescuento().
                     pw.println("COCINERO" + ";"
                             + c.getLogin() + ";"
                             + c.getPassword() + ";"
-                            + c.getNombre() + ";");
+                            + c.getNombre() + ";"
+                            + c.getCodigoDescuento());
                 } 
                 else if (u instanceof Administrador) {
                     Administrador a = (Administrador) u;
@@ -498,10 +492,7 @@ public class GestorPersistencia {
                     v.setIdVenta(idVenta);
                     v.setFecha(fecha);
                     v.setRealizadaPor(realizadaPor);
-
-                    // CAMBIO: Venta no tiene setTotal(), entonces se restaura con reflexión
-                    // para NO modificar la clase Venta.
-                    restaurarTotalVenta(v, total);
+                    v.setTotal(total);
 
                     ventas.add(v);
                 }
@@ -536,9 +527,7 @@ public class GestorPersistencia {
                     loginUsuario = v.getRealizadaPor().getLogin();
                 }
 
-                // CAMBIO: Venta no tiene getTotal(), entonces se lee por reflexión
-                // para NO modificar la clase Venta.
-                double total = obtenerTotalVentaSeguro(v);
+                double total = v.getTotal();
 
                 // Formato:
                 // idVenta;fecha;total;loginUsuario
@@ -550,35 +539,6 @@ public class GestorPersistencia {
         } catch (Exception e) {
             System.err.println("Error guardando ventas: " + e.getMessage());
         }
-    }
-
-    // CAMBIO: helper para restaurar el atributo privado total sin modificar Venta.
-    private void restaurarTotalVenta(Venta venta, double total) {
-        try {
-            Field campo = Venta.class.getDeclaredField("total");
-            campo.setAccessible(true);
-            campo.set(venta, total);
-        } catch (Exception e) {
-            System.err.println("No se pudo restaurar total de venta: " + e.getMessage());
-        }
-    }
-
-    // CAMBIO: helper para leer el atributo privado total sin modificar Venta.
-    private double obtenerTotalVentaSeguro(Venta venta) {
-        try {
-            Field campo = Venta.class.getDeclaredField("total");
-            campo.setAccessible(true);
-
-            Object valor = campo.get(venta);
-
-            if (valor != null) {
-                return ((Double) valor).doubleValue();
-            }
-        } catch (Exception e) {
-            System.err.println("No se pudo obtener total de venta: " + e.getMessage());
-        }
-
-        return 0.0;
     }
     
     // PERSISTENCIA TORNEOS

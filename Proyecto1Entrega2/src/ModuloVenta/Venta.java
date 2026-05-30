@@ -189,4 +189,19 @@ public class Venta {
         this.itemsVenta = itemsVenta;
     }
 
+	public void setSubtotal(double subtotal) {
+		this.subtotal = subtotal;
+	}
+
+	public void setImpuestos(double impuestos) {
+		this.impuestos = impuestos;
+	}
+
+	public void setTotal(double total) {
+		this.total = total;
+	}
+
+	public void setDescuentoAplicado(double descuentoAplicado) {
+		this.descuentoAplicado = descuentoAplicado;
+	}
 }

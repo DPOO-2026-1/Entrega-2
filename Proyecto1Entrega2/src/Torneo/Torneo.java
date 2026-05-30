@@ -48,7 +48,7 @@ public abstract class Torneo {
     }
 
     public int cuposDisponiblesRegulares() {
-        return Math.max(0, cupoTotal - cupoReservadoFanaticos - cupoOcupadoRegular);
+        return Math.max(0, cupoTotal - cupoOcupadoReservado - cupoOcupadoRegular);
     }
 
     public boolean esFanatico(Usuario u) {

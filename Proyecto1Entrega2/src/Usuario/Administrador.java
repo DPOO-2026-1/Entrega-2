@@ -5,9 +5,12 @@ import java.time.chrono.ChronoLocalDateTime;
 import java.util.Date;
 import java.util.List;
 
+import World.Cafeteria;
 import World.CopiaPrestamo;
 import World.Juego;
+import World.Prestamo;
 import ModuloVenta.CopiaVenta;
+import ModuloVenta.GestorVentas;
 import ModuloVenta.Venta;
 import ModuloVenta.ProductoComestible;
 
@@ -18,29 +21,58 @@ public class Administrador extends Usuario {
     }
 
     public void aprobarSolicitudTurno(SolicitudTurno s) {
-        s.setEstado("Aprobada");
+    	Cafeteria cafe = Cafeteria.getInstance();
+        Empleado solicitante = s.getSolicitadoPor();
+        DiaSemana dia = s.getDia();
         
         if (!s.isEsIntercambio()) {
-            DiaTurno nuevoTurno = new DiaTurno(s.getDia(), true);
-            s.getSolicitadoPor().consultarDiasAsignados().add(nuevoTurno);
+        	if (!puedeAusentarse(solicitante, dia, cafe)) {
+        		throw new IllegalStateException(
+                        "No se puede aprobar: el café no cumpliría el mínimo de 1 cocinero y 2 meseros ese día.");
+        	}
+        	solicitante.consultarDiasAsignados().removeIf(dt -> dt.getDia().mismoDia(dia));
+            
         } else {
-            s.getSolicitadoPor().consultarDiasAsignados().add(new DiaTurno(s.getDia(), true));
+        	solicitante.consultarDiasAsignados().add(new DiaTurno(dia, true));
         }
+        s.setEstado("Aprobada");
     }
     
     public void rechazarSolicitudTurno(SolicitudTurno s) {
         s.setEstado("Rechazada");
     }
     
+    public void asignarTurno(Empleado emp, DiaSemana dia) {
+    	for (DiaTurno dt : emp.consultarDiasAsignados()) {
+            if (dt.getDia().mismoDia(dia)) {
+                throw new IllegalStateException("El empleado ya tiene asignado ese día.");
+            }
+        }
+    	emp.consultarDiasAsignados().add(new DiaTurno(dia, true));
+    }
+    
+    public void quitarTurno(Empleado emp, DiaSemana dia, Cafeteria cafe) {
+    	if (!puedeAusentarse(emp, dia, cafe)) {
+            throw new IllegalStateException(
+                "No se puede quitar el turno: el café no cumpliría el mínimo de empleados ese día.");
+        }
+        emp.consultarDiasAsignados().removeIf(dt -> dt.getDia().mismoDia(dia));
+    }
+    
     public void comprarJuegos(Juego j, int cant, String tipo) {
         for (int i = 0; i < cant; i++) {
-            if (tipo.equalsIgnoreCase("prestamo")) {
-                // Se genera un ID único con System.currentTimeMillis para evitar duplicados
-                CopiaPrestamo nuevaCopiaP = new CopiaPrestamo("P-" + System.currentTimeMillis() + "-" + i, "Nuevo", true, 0);
+        	// ID único combinando tiempo + índice para evitar colisiones en bucles rápidos
+        	String idBase = j.getNombre().replaceAll("\\s+", "") + "-" + System.currentTimeMillis() + "-" + i;
+            
+        	if (tipo.equalsIgnoreCase("prestamo")) {
+                CopiaPrestamo nuevaCopiaP = new CopiaPrestamo("P-" + idBase, "Nuevo", true, 0);
+                nuevaCopiaP.setJuegoAsociado(j);
                 j.agregarCopiaPrestamo(nuevaCopiaP);
             } else if (tipo.equalsIgnoreCase("venta")) {
-                CopiaVenta nuevaCopiaV = new CopiaVenta("V-" + System.currentTimeMillis() + "-" + i, 50000.0); 
+                CopiaVenta nuevaCopiaV = new CopiaVenta("V-" + idBase, 50000.0); 
                 j.agregarCopiaVenta(nuevaCopiaV);
+            } else {
+            	throw new IllegalArgumentException("Tipo inválido. Use 'prestamo' o 'venta'.");
             }
         }
     }
@@ -54,53 +86,59 @@ public class Administrador extends Usuario {
     }
     
     public void moverJuegoAVenta(CopiaPrestamo c, Juego j) {
-        // Para moverlo, se saca de disponibilidad de préstamo y se crea la copia de venta
-        c.setEstaDisponible(false); 
-        c.setEstado("Movido a Venta");
-        
-        CopiaVenta nuevaVenta = new CopiaVenta("V-" + c.getIdUnico(), 45000.0); // Precio asumido
+    	if (c.getJuegoAsociado() == null || !c.getJuegoAsociado().equals(j)) {
+            throw new IllegalArgumentException("La copia no pertenece al juego indicado.");
+    	}
+    	if (!c.estaDisponible()) {
+            throw new IllegalStateException("No se puede mover una copia que está actualmente prestada.");
+        }
+    	
+    	j.getCopiasPrestamo().remove(c);
+    	
+    	String nuevoId = "V-" + c.getIdUnico();
+    	CopiaVenta nuevaVenta = new CopiaVenta(nuevoId, 45000.0);
         j.agregarCopiaVenta(nuevaVenta);
     }
     
     // COMENTARIO: Añadido método para mover copia de venta a préstamo (reparación de inventario).
     public void moverJuegoAPrestamo(CopiaVenta c, Juego j) {
         // Se asume que la copia de venta se elimina o se marca como no disponible, pero como CopiaVenta no tiene estado, solo se crea la de préstamo.
-        CopiaPrestamo nuevaPrestamo = new CopiaPrestamo("P-MOV-" + System.currentTimeMillis(), "Nuevo", true, 0);
+    	j.getCopiasParaVenta().remove(c);
+    	String nuevoId = "P-MOV-" + System.currentTimeMillis();
+    	CopiaPrestamo nuevaPrestamo = new CopiaPrestamo(nuevoId, "Nuevo", true, 0);
+        nuevaPrestamo.setJuegoAsociado(j);
         j.agregarCopiaPrestamo(nuevaPrestamo);
     }
     
-    public String generarInformeVentas(List<Venta> inventarioVentas, ChronoLocalDateTime<?> ini, ChronoLocalDateTime<?> fin, String granularidad) {
-        double totalSubtotal = 0.0;
-        double totalImpuestos = 0.0;
-        double totalPropinas = 0.0;
-        double totalGeneral = 0.0;
-
-        for (Venta v : inventarioVentas) {
-            LocalDateTime fechaVenta = v.getFecha();
-            if (!fechaVenta.isBefore(ini) && !fechaVenta.isAfter(fin)) {
-                totalSubtotal += v.getSubtotal();
-                totalImpuestos += v.getImpuestos();
-                totalPropinas += v.getPropina();
-                totalGeneral += v.getTotal();
-            }
-        }
-        
-        return "=== INFORME DE VENTAS (" + granularidad.toUpperCase() + ") ===\n" +
-               "Periodo: " + ini.toString() + " a " + fin.toString() + "\n" +
-               "Subtotal: $" + totalSubtotal + "\n" +
-               "Impuestos: $" + totalImpuestos + "\n" +
-               "Propinas: $" + totalPropinas + "\n" +
-               "TOTAL GENERAL: $" + totalGeneral + "\n" +
-               "===================================\n";
+    public String generarInformeVentas(LocalDateTime ini, LocalDateTime fin, String granularidad) {
+    	Cafeteria cafe = Cafeteria.getInstance();
+        GestorVentas gestorVentas = cafe.getGestorVentas();
+        List<Usuario> usuarios = cafe.getUsuarios();
+        return gestorVentas.generarInformeVentas(ini, fin, granularidad, usuarios);
     }
     
     public void aprobarSugerenciaMenu(SugerenciaMenu s) {
         s.setEstado("Aprobada");
     }
     
+    public void rechazarSugerenciaMenu(SugerenciaMenu s) {
+        s.setEstado("Rechazada");
+    }
+    
     public void agregarProductoMenu(List<ProductoComestible> menuCafeteria, ProductoComestible p) {
+        if (p == null) {
+            throw new IllegalArgumentException("El producto no puede ser nulo.");
+        }
+        if (menuCafeteria.contains(p)) {
+            throw new IllegalStateException("El producto ya está en el menú.");
+        }
         menuCafeteria.add(p);
     }
+    
+    public Empleado registrarEmpleado(String login, String password, String nombre, String tipo, String codigoDescuento) {
+    	Cafeteria cafe = Cafeteria.getInstance();
+    	return cafe.getGestorUsuarios().registrarEmpleado(login, password, nombre, tipo, codigoDescuento);
+    	}
     
     public String verHistorialJuego(Juego j) {
         StringBuilder sb = new StringBuilder();
@@ -112,13 +150,55 @@ public class Administrador extends Usuario {
             return sb.toString();
         }
         
+        List<Prestamo> historial = Cafeteria.getInstance().getHistorialPrestamos();
         for (CopiaPrestamo cp : copias) {
             sb.append("- Copia [").append(cp.getIdUnico()).append("]\n")
-              .append("  Estado actual: ").append(cp.getEstado()).append("\n")
-              .append("  Disponible: ").append(cp.estaDisponible() ? "Sí" : "No").append("\n")
-              .append("  Total de veces prestado: ").append(cp.getVecesPrestado()).append("\n\n");
+              .append("  Estado actual:       ").append(cp.getEstado()).append("\n")
+              .append("  Disponible:          ").append(cp.estaDisponible() ? "Sí" : "No").append("\n")
+              .append("  Total veces prestado: ").append(cp.getVecesPrestado()).append("\n");
+            
+            sb.append("  Préstamos registrados:\n");
+            
+            boolean tienePrestamos = false;
+            for (Prestamo p : historial) {
+                for (CopiaPrestamo copiaEnPrestamo : p.getCopias()) {
+                    if (copiaEnPrestamo.getIdUnico().equals(cp.getIdUnico())) {
+                        sb.append("    · Solicitado por: ")
+                          .append(p.getSolicitadoPor().getNombre()).append("\n")
+                          .append("      Inicio: ").append(p.getFechaHoraInicio()).append("\n")
+                          .append("      Fin:    ").append(
+                              p.getFechaHoraFin() != null ? p.getFechaHoraFin() : "En curso").append("\n")
+                          .append("      Estado: ").append(p.getEstado()).append("\n");
+                        tienePrestamos = true;
+                    }
+                }
+            }
+            
+            if (!tienePrestamos) {
+                sb.append("    (ninguno registrado)\n");
+            }
+            sb.append("\n");
         }
-        
+
         return sb.toString();
+    }
+    
+    private boolean puedeAusentarse(Empleado solicitante, DiaSemana dia, Cafeteria cafe) {
+        int cocineros = 0;
+        int meseros = 0;
+
+        for (Usuario u : cafe.getUsuarios()) {
+            if (u instanceof Empleado && !u.getLogin().equals(solicitante.getLogin())) {
+                Empleado emp = (Empleado) u;
+                for (DiaTurno dt : emp.consultarDiasAsignados()) {
+                    if (dt.getDia().mismoDia(dia) && dt.estaAsignado()) {
+                        if (emp instanceof Cocinero) cocineros++;
+                        else if (emp instanceof Mesero) meseros++;
+                        break;
+                    }
+                }
+            }
+        }
+        return cocineros >= 1 && meseros >= 2;
     }
 }

@@ -6,6 +6,7 @@ import Usuario.DiaSemana;
 import Usuario.Empleado;
 import Usuario.Cocinero;
 import Usuario.Mesero;
+import Usuario.SugerenciaMenu;
 import Usuario.DiaTurno;
 import ModuloVenta.GestorVentas;
 import ModuloVenta.Pasteleria;
@@ -29,8 +30,8 @@ public class Cafeteria {
     private GestorUsuarios gestorUsuarios;
     private GestorVentas gestorVentas;
     private GestorTorneo gestorTorneo;
-    // Cambio para venta
     private List<Venta> ventas;
+    private List<SugerenciaMenu> sugerencias = new ArrayList<>();
 
  // Constructor Privado, evita que alguien haga "new Cafeteria()" desde fuera
     private Cafeteria(int capacidadMax, String nombre, GestorUsuarios gu, GestorVentas gv) {
@@ -239,4 +240,20 @@ public class Cafeteria {
  	public void setGestorTorneo(GestorTorneo gestorTorneo) {
      	this.gestorTorneo = gestorTorneo;
  	}
+
+	public static void setInstance(Cafeteria instance) {
+		Cafeteria.instance = instance;
+	}
+
+	public void setCantPersonasActuales(int cantPersonasActuales) {
+		this.cantPersonasActuales = cantPersonasActuales;
+	}
+ 	
+	public List<SugerenciaMenu> getSugerencias() {
+	    return sugerencias;
+	}
+	
+	public void setSugerencias(List<SugerenciaMenu> sugerencias) {
+	    this.sugerencias = sugerencias;
+	}
 }

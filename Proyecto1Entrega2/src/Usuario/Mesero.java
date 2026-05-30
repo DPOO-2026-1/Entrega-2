@@ -2,14 +2,17 @@ package Usuario;
 
 import java.time.LocalDateTime;
 
+import ModuloVenta.Bebida;
 import ModuloVenta.ItemVenta;
 import ModuloVenta.Venta;
+import World.Cafeteria;
 import World.CopiaPrestamo;
 import World.Juego;
 import World.Mesa;
 import World.Prestamo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Mesero extends Empleado{
@@ -17,21 +20,81 @@ public class Mesero extends Empleado{
 
 	public Mesero(String login, String password, String nombre, String codigoDescuento) {
         super(login, password, nombre, codigoDescuento);
-        this.juegosConocidos = new ArrayList<Juego>();
+        this.juegosConocidos = new ArrayList<>();
     }
 	
 	public Venta registrarVenta(ItemVenta[] items, Mesa mesa) {
-        Venta v = new Venta();
-        v.setItemsVenta(items);
-        v.setFecha(LocalDateTime.now());
-        v.setRealizadaPor(this);
-        v.calcularSubtotal();
-        v.calcularImpuestosTotales();
+		if (items == null || items.length == 0) {
+            throw new IllegalArgumentException("Debe haber al menos un ítem en la venta.");
+        }
+		
+		if (mesa != null) {
+            for (ItemVenta item : items) {
+                if (item.getProducto() instanceof Bebida) {
+                    Bebida b = (Bebida) item.getProducto();
+                    
+                    if (b.isEsAlcoholica() && !mesa.puedeRecibirBebidaAlcoholica()) {
+                        throw new IllegalStateException(
+                            "No se puede servir bebida alcohólica a una mesa con menores de edad.");
+                    }
+                    
+                    if (b.isEsCaliente()) {
+                        mesa.setHayBebidaCaliente(true);
+                        if (!mesa.puedeRecibirJuegoAccion()) {
+                            throw new IllegalStateException(
+                                "No se puede servir bebida caliente: la mesa tiene un juego de Acción activo.");
+                        }
+                    }
+                }
+            }
+		}
+		
+		Venta v = new Venta(new Date(), items, this);
         v.setPropina(0.10);
         v.calcularTotal();
         v.calcularPuntosGenerados();
+        
+        Cafeteria.getInstance().getVentas().add(v);
+        
         return v;
     }
+	
+	public Venta realizarCompra(List<ItemVenta> items) {
+        if (items == null || items.isEmpty()) {
+            throw new IllegalArgumentException("Debe haber al menos un ítem en la compra.");
+        }
+        Venta v = new Venta(new Date(), items.toArray(new ItemVenta[0]), this);
+        v.aplicarDescuento("EMPLEADO");
+        
+        v.calcularSubtotal();
+        v.calcularImpuestosTotales();
+        v.calcularTotal();
+        v.calcularPuntosGenerados();
+        
+        Cafeteria.getInstance().getVentas().add(v);
+        
+        return v;
+	}
+	
+	@Override
+    public Prestamo alquilarJuego(CopiaPrestamo copia) {
+		if (estaEnTurno()) {
+            throw new IllegalStateException("No puedes alquilar un juego mientras estás de turno.");
+        }
+
+        if (copia == null) {
+            throw new IllegalArgumentException("La copia no puede ser nula.");
+        }
+        if (!copia.estaDisponible()) {
+            throw new IllegalStateException("La copia del juego no está disponible.");
+        }
+        
+        Prestamo p = new Prestamo(new Date(), copia, null, this);
+        
+        Cafeteria.getInstance().getHistorialPrestamos().add(p);
+        
+        return p;
+	}
 	
 	public boolean puedeEnsenar(Juego j) {
         return juegosConocidos.contains(j);
@@ -42,61 +105,8 @@ public class Mesero extends Empleado{
             juegosConocidos.add(j);
         }
     }
-
-	// ===== CAMBIO HECHO =====
-    // Implementé este método porque Empleado lo declara abstracto.
-    // Si no se implementa, Mesero no compila.
-    // Además aplica descuento de empleado.
-    // ===== FIN CAMBIO =====
-    @Override
-    public Venta realizarCompra(List<ItemVenta> items) {
-        Venta v = new Venta();
-
-        if (items != null) {
-            v.setItemsVenta(items.toArray(new ItemVenta[0]));
-        } else {
-            v.setItemsVenta(new ItemVenta[0]);
-        }
-
-        v.setFecha(LocalDateTime.now());
-        v.setRealizadaPor(this);
-
-        v.calcularSubtotal();
-        v.calcularImpuestosTotales();
-
-        // ===== CAMBIO HECHO =====
-        // Descuento de empleado. Se usa 0.20 porque Venta.aplicarDescuento(double)
-        // recibe porcentaje en decimal.
-        // ===== FIN CAMBIO =====
-        v.aplicarDescuento(0.20);
-
-        v.calcularTotal();
-        v.calcularPuntosGenerados();
-
-        return v;
-    }
-
-    // ===== CAMBIO HECHO =====
-    // Implementé este método porque Empleado lo declara abstracto.
-    // Un empleado no puede alquilar juegos si está de turno.
-    // ===== FIN CAMBIO =====
-    @Override
-    public Prestamo alquilarJuego(CopiaPrestamo copia) {
-        if (this.estaDeTurno) {
-            throw new IllegalStateException("No se puede alquilar en turno laboral.");
-        }
-
-        if (copia == null || !copia.estaDisponible()) {
-            throw new IllegalStateException("Copia no disponible.");
-        }
-
-        return new Prestamo(new java.util.Date(), copia, null, this);
-    }
-
-    // ===== CAMBIO HECHO =====
-    // Getter necesario para consultar los juegos que el mesero sabe enseñar.
-    // ===== FIN CAMBIO =====
-    public List<Juego> getJuegosConocidos() {
+	
+	public List<Juego> getJuegosConocidos() {
         return juegosConocidos;
     }
 }
