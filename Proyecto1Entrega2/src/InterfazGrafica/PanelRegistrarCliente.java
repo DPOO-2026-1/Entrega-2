@@ -2,6 +2,7 @@ package InterfazGrafica;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -13,6 +14,9 @@ public class PanelRegistrarCliente extends JPanel {
     private JButton logiButton;
     private JTextField campoTextUsuario;
     private JPasswordField campoContrasenia;
+    // Agregados los dos atributos para los checkboxes
+    private JCheckBox checkOpcion1;
+    private JCheckBox checkOpcion2;
 
     public PanelRegistrarCliente() {
         // Estabamos queriendo algo sofisticado en este panel; por lo que usamos border
@@ -72,10 +76,27 @@ public class PanelRegistrarCliente extends JPanel {
         campoContrasenia = new JPasswordField(20);
         panelFormulario.add(campoContrasenia, gbcFormulario);
 
+        // Fila de los checkboxes y el botón Login
         gbcFormulario.gridy = 4;
+
+        gbcFormulario.gridx = 0;
+        gbcFormulario.anchor = GridBagConstraints.WEST;
+        checkOpcion1 = new JCheckBox("Soy Jóven");
+        checkOpcion1.setOpaque(false);
+        panelFormulario.add(checkOpcion1, gbcFormulario);
+
+        gbcFormulario.gridx = 1;
+        checkOpcion2 = new JCheckBox("Soy Niño");
+        checkOpcion2.setOpaque(false);
+        panelFormulario.add(checkOpcion2, gbcFormulario);
+
+        gbcFormulario.gridx = 2;
         gbcFormulario.anchor = GridBagConstraints.EAST;
         logiButton = new JButton("Login");
         panelFormulario.add(logiButton, gbcFormulario);
+
+        // Dejamos gridx en 0 para evitar errores de desalineación en futuras filas
+        gbcFormulario.gridx = 0;
 
         // Meter el formulario en la columna 0 del centro
         gbc.gridx = 0;
@@ -85,7 +106,7 @@ public class PanelRegistrarCliente extends JPanel {
 
         // Metemos la imágen de la taza
         ImageIcon iconoTaza = new ImageIcon(
-                "C:\\Users\\juand\\git\\Entrega-2\\Proyecto1Entrega2\\src\\InterfazGrafica\\gameCafe.png");
+                "src\\InterfazGrafica\\gameCafe.png");
         JLabel labelImagen = new JLabel(iconoTaza);
 
         // Meter la imagen en la columna 1 del centro
@@ -108,5 +129,14 @@ public class PanelRegistrarCliente extends JPanel {
 
     public String getContrasena() {
         return new String(campoContrasenia.getPassword());
+    }
+
+    // Getters para los Checkboxes
+    public boolean esNinio() {
+        return checkOpcion1.isSelected();
+    }
+
+    public boolean esJoven() {
+        return checkOpcion2.isSelected();
     }
 }

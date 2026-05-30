@@ -6,12 +6,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.*;
 
-public class PanelOpciones extends JPanel {
-    private JButton btnEmpleado;
-    private JButton btnAdministrador;
-    private JButton btnCliente;
+public class PanelOpcionesCliente extends JPanel {
+    private JButton Loggearme;
+    private JButton Registrarme;
 
-    public PanelOpciones() {
+    public PanelOpcionesCliente() {
         // Layout principal para separar el banner superior del contenido central
         setLayout(new BorderLayout());
         setBackground(EstiloUI.COLOR_FONDO_BEIGE);
@@ -20,7 +19,7 @@ public class PanelOpciones extends JPanel {
         JPanel panelBanner = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panelBanner.setBackground(EstiloUI.COLOR_BANNER_CAFE);
 
-        JLabel textBanner = new JLabel("Board Game Cafe; nos alegra verte de nuevo");
+        JLabel textBanner = new JLabel("Gracias por elegirnos");
         textBanner.setFont(EstiloUI.FUENTE_TITULO);
         panelBanner.add(textBanner);
 
@@ -37,6 +36,7 @@ public class PanelOpciones extends JPanel {
         // Queremos que esté transparente
         panelIzquierdo.setOpaque(false);
         GridBagConstraints gbcIzquierda = new GridBagConstraints();
+        gbcIzquierda.gridx = 0; // Fixed: Explicitly initialize gridx
         gbcIzquierda.insets = new Insets(10, 5, 10, 5);
         gbcIzquierda.anchor = GridBagConstraints.WEST;
 
@@ -48,21 +48,17 @@ public class PanelOpciones extends JPanel {
 
         // Metemos el panel de los botones en la siguiente fila
         gbcIzquierda.gridy = 1;
-        JPanel panelBotones = new JPanel(new GridLayout(1, 3, 10, 0));
+        JPanel panelBotones = new JPanel(new GridLayout(1, 2, 10, 0));
         panelBotones.setOpaque(false);
 
-        btnEmpleado = new JButton("Empleado");
-        btnAdministrador = new JButton("Administrador");
-        btnCliente = new JButton("Cliente");
+        Loggearme = new JButton("Loggearme");
+        Registrarme = new JButton("Registrarme");
 
-        btnEmpleado.setBackground(Color.WHITE);
-        btnAdministrador.setBackground(Color.WHITE);
-        btnCliente.setBackground(EstiloUI.COLOR_BANNER_CAFE);
-        btnCliente.setForeground(Color.WHITE);
+        Loggearme.setBackground(Color.WHITE);
+        Registrarme.setBackground(Color.WHITE);
 
-        panelBotones.add(btnEmpleado);
-        panelBotones.add(btnAdministrador);
-        panelBotones.add(btnCliente);
+        panelBotones.add(Loggearme);
+        panelBotones.add(Registrarme);
 
         panelIzquierdo.add(panelBotones, gbcIzquierda);
 
@@ -76,8 +72,11 @@ public class PanelOpciones extends JPanel {
         // logo.
         gbc.gridx = 1;
         gbc.gridy = 0;
-        ImageIcon iconoTaza = new ImageIcon(
-                "src\\InterfazGrafica\\gameCafe.png");
+        gbc.insets = new Insets(0, 0, 0, 0); // Fixed: Reset insets so image doesn't mirror the 50px padding
+
+        // Fixed: Load resource relative to the project structure so it works on any
+        // machine
+        ImageIcon iconoTaza = new ImageIcon(getClass().getResource("/InterfazGrafica/gameCafe.png"));
         JLabel labelImagen = new JLabel(iconoTaza);
         panelCentro.add(labelImagen, gbc);
 
@@ -86,15 +85,12 @@ public class PanelOpciones extends JPanel {
 
     // Usamos getters y setters para poder hacer el redigimiento con action
     // listeners en Ventana Principal
-    public JButton getBtnEmpleado() {
-        return btnEmpleado;
+    public JButton getBtnLoggearse() {
+        return Loggearme;
     }
 
-    public JButton getBtnAdministrador() {
-        return btnAdministrador;
+    public JButton getRegistrarse() {
+        return Registrarme;
     }
 
-    public JButton getBtnCliente() {
-        return btnCliente;
-    }
 }

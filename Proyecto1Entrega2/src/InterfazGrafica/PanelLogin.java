@@ -85,7 +85,7 @@ public class PanelLogin extends JPanel {
 
         // Metemos la imágen de la taza
         ImageIcon iconoTaza = new ImageIcon(
-                "C:\\Users\\juand\\git\\Entrega-2\\Proyecto1Entrega2\\src\\InterfazGrafica\\gameCafe.png");
+                "src\\InterfazGrafica\\gameCafe.png");
         JLabel labelImagen = new JLabel(iconoTaza);
 
         // Meter la imagen en la columna 1 del centro
