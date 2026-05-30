@@ -9,12 +9,12 @@ import javax.swing.JTextField;
 
 import java.awt.*;
 
-public class PanelLogin extends JPanel {
+public class PanelRegistrarCliente extends JPanel {
     private JButton logiButton;
     private JTextField campoTextUsuario;
     private JPasswordField campoContrasenia;
 
-    public PanelLogin() {
+    public PanelRegistrarCliente() {
         // Estabamos queriendo algo sofisticado en este panel; por lo que usamos border
         // layout y
         // Creamos diferentes layouts para cada componente, los cuales metimos luego
@@ -26,11 +26,11 @@ public class PanelLogin extends JPanel {
         JPanel panelBannerBienvenidos = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panelBannerBienvenidos.setBackground(EstiloUI.COLOR_BANNER_CAFE);
         // Para meter el texto.
-        JLabel textBienvenido = new JLabel("Bienvenido de nuevo");
+        JLabel textBienvenido = new JLabel("Registrar Cliente");
         textBienvenido.setFont(EstiloUI.FUENTE_TITULO);
         panelBannerBienvenidos.add(textBienvenido);
 
-        // Como para este panel tenemos border layout, lo metemo en North.
+        // Como para este panel tenemos border layout, lo metemos en North.
         add(panelBannerBienvenidos, BorderLayout.NORTH);
 
         // Ahora usamos GridBackLayout para todo lo central (Foto de Game Cafe y el

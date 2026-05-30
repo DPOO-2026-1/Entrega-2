@@ -17,53 +17,16 @@ public class VentanaPrincipal extends JFrame {
         // Configuración de layout
         controlLayout = new CardLayout();
         setLayout(controlLayout);
-        this.getContentPane().setBackground(Color.decode("#541A1A"));
         // Configuramos los componentes
         configurarComponentes();
     }
 
     private void configurarComponentes() {
+        PanelOpciones PanelOpciones = new PanelOpciones();
+        PanelLogin PanelLogin = new PanelLogin();
 
-        // ==========================================
-        // PASO 1: CREAR TUS PÁGINAS (PANLES)
-        // ==========================================
-        JPanel paginaInicio = new JPanel();
-        JPanel paginaDestino = new JPanel();
-        // Añade aquí más paneles si necesitas más páginas...
-
-        // ==========================================
-        // PASO 2: AÑADIR LOS BOTONES A LOS PANALES
-        // ==========================================
-        JButton botonIrADestino = new JButton("Cambiar de página");
-        paginaInicio.add(botonIrADestino); // Agregamos el botón al panel de inicio
-
-        // Para añadir otro botón en el futuro:
-        // JButton miNuevoBoton = new JButton("Texto");
-        // tuPanel.add(miNuevoBoton);
-
-        // ==========================================
-        // PASO 3: REGISTRAR LAS PÁGINAS EN LA VENTANA
-        // ==========================================
-        add(paginaInicio, "NombrePantallaInicio");
-        add(paginaDestino, "NombrePantallaDestino");
-        // Para registrar más páginas:
-        // add(nombreDelPanel, "TextoIdentificadorUnico");
-
-        // ==========================================
-        // PASO 4: CONECTAR LOS BOTONES CON LOS PANALES
-        // ==========================================
-
-        // Al presionar este botón, se muestra el panel registrado como
-        // "NombrePantallaDestino"
-        botonIrADestino.addActionListener(e -> controlLayout.show(this.getContentPane(), "NombrePantallaDestino"));
-
-        /*
-         * * PLANTILLA PARA CONECTAR MÁS BOTONES:
-         * * nombreDeTuBoton.addActionListener(e -> {
-         * controlLayout.show(this.getContentPane(),
-         * "NombreIdentificadorDeLaPaginaALaQueQuieresIr");
-         * });
-         */
+        this.add(PanelOpciones, "PanelOpciones");
+        this.add(PanelLogin, "PanelLogin");
     }
 
     public static void main(String[] args) {
