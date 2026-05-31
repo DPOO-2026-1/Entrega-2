@@ -3,6 +3,10 @@ package Controladores;
 import InterfazGrafica.VentanaPrincipal;
 import Usuario.Usuario;
 import World.Cafeteria;
+import Persistencia.GestorPersistencia;
+import Usuario.GestorUsuarios;
+import ModuloVenta.GestorVentas;
+import Torneo.GestorTorneo;
 
 public class ControllerPrincipal {
 
@@ -15,10 +19,41 @@ public class ControllerPrincipal {
     private Cafeteria cafeteria;
     private Usuario usuarioActual;
 
+    private GestorPersistencia persistencia;
+
     public ControllerPrincipal(VentanaPrincipal vista) {
         this.vista = vista;
 
-        this.cafeteria = new Cafeteria();
+        // 1. Inicializar la persistencia y gestores de igual forma que en la Consola
+        this.persistencia = new GestorPersistencia("data/");
+        GestorUsuarios gestorUsuarios = new GestorUsuarios(this.persistencia, null);
+        GestorVentas gestorVentas = new GestorVentas(this.persistencia);
+
+        // 2. Inicializar la instancia del Singleton Cafeteria
+        this.cafeteria = Cafeteria.getInstance(80, "Board Nights", gestorUsuarios, gestorVentas);
+        gestorUsuarios.setCafeteria(this.cafeteria);
+        this.cafeteria.setGestorUsuarios(gestorUsuarios);
+        this.cafeteria.setGestorVentas(gestorVentas);
+
+        // 3. Cargar los datos desde los archivos de persistencia CSV al iniciar
+        try {
+            Cafeteria cargada = persistencia.cargarTodo();
+            if (cargada != null) {
+                this.cafeteria = cargada;
+                Cafeteria.setInstance(cargada);
+            }
+
+            // Reconstruir y asignar el GestorTorneo unificado
+            GestorTorneo loadedTorneos = persistencia.cargarGestorTorneo(
+                    this.cafeteria.getUsuarios(),
+                    this.cafeteria.getJuegos()
+            );
+            this.cafeteria.setGestorTorneo(loadedTorneos);
+            System.out.println("Datos cargados correctamente en la GUI.");
+        } catch (Exception e) {
+            System.out.println("No se pudieron cargar los datos en la GUI.");
+            e.printStackTrace();
+        }
 
         // La app se inicializa con el primer controlador sólamente porque usamos Lazy
         // loading

@@ -2,6 +2,7 @@ package InterfazGrafica;
 
 import javax.swing.*;
 import java.awt.*;
+import Controladores.ControllerPrincipal;
 
 public class VentanaPrincipal extends JFrame {
     private CardLayout controlLayout;
@@ -59,6 +60,7 @@ public class VentanaPrincipal extends JFrame {
 
     public static void main(String[] args) {
         VentanaPrincipal ventana = new VentanaPrincipal();
+        new ControllerPrincipal(ventana);
         ventana.setVisible(true);
     }
 }

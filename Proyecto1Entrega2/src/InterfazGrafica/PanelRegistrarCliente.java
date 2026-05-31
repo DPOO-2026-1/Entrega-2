@@ -13,6 +13,7 @@ import java.awt.*;
 public class PanelRegistrarCliente extends JPanel {
     private JButton logiButton;
     private JTextField campoTextUsuario;
+    private JTextField campoTextNombre;
     private JPasswordField campoContrasenia;
     // Agregados los dos atributos para los checkboxes
     private JCheckBox checkOpcion1;
@@ -66,18 +67,26 @@ public class PanelRegistrarCliente extends JPanel {
         campoTextUsuario = new JTextField(20);
         panelFormulario.add(campoTextUsuario, gbcFormulario);
 
-        // Texto para contraseña
+        // Texto para nombre completo
         gbcFormulario.gridy = 2;
-        // Los objetos se meten dentro del objeto panel; junto con la clase que contiene
-        // las constraints.
-        panelFormulario.add(new JLabel("Ponga su contraseña a continuación; "), gbcFormulario);
+        panelFormulario.add(new JLabel("Ingrese su nombre completo:"), gbcFormulario);
 
         gbcFormulario.gridy = 3;
+        campoTextNombre = new JTextField(20);
+        panelFormulario.add(campoTextNombre, gbcFormulario);
+
+        // Texto para contraseña
+        gbcFormulario.gridy = 4;
+        // Los objetos se meten dentro del objeto panel; junto con la clase que contiene
+        // las constraints.
+        panelFormulario.add(new JLabel("Ponga su contraseña a continuación:"), gbcFormulario);
+
+        gbcFormulario.gridy = 5;
         campoContrasenia = new JPasswordField(20);
         panelFormulario.add(campoContrasenia, gbcFormulario);
 
         // Fila de los checkboxes y el botón Login
-        gbcFormulario.gridy = 4;
+        gbcFormulario.gridy = 6;
 
         gbcFormulario.gridx = 0;
         gbcFormulario.anchor = GridBagConstraints.WEST;
@@ -125,6 +134,10 @@ public class PanelRegistrarCliente extends JPanel {
 
     public String getUsuario() {
         return campoTextUsuario.getText();
+    }
+
+    public String getNombre() {
+        return campoTextNombre.getText();
     }
 
     public String getContrasena() {
