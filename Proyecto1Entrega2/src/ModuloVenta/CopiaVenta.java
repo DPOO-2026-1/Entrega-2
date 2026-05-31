@@ -15,4 +15,12 @@ public class CopiaVenta extends Juego implements ProductoVendible{
 	public double getTasaImpuesto() {
 		return 0.19;
 	}
+
+	public String getIdUnico() {
+        return idUnico;
+    }
+
+    public double getPrecioVenta() {
+        return precioVenta;
+    }
 }

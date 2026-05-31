@@ -5,8 +5,12 @@ import Usuario.Usuario;
 import Usuario.Cliente;
 import Usuario.Empleado;
 import World.Cafeteria;
+import World.CopiaPrestamo;
+import World.Juego;
+import World.Mesa;
 import Persistencia.GestorPersistencia;
 import Usuario.GestorUsuarios;
+import ModuloVenta.CopiaVenta;
 import ModuloVenta.GestorVentas;
 import Torneo.GestorTorneo;
 
@@ -51,6 +55,9 @@ public class ControllerPrincipal {
                     this.cafeteria.getJuegos()
             );
             this.cafeteria.setGestorTorneo(loadedTorneos);
+            
+            asegurarDatosMinimosParaGUI();
+            
             System.out.println("Datos cargados correctamente en la GUI.");
         } catch (Exception e) {
             System.out.println("No se pudieron cargar los datos en la GUI.");
@@ -120,6 +127,39 @@ public class ControllerPrincipal {
                 });
 
                 vista.cambiarPantalla("PanelEmpleado");
+            }
+        }
+    }
+    
+    // Esto evita que los paneles de préstamos/compras aparezcan totalmente vacíos
+    // cuando los CSV no tienen copias o mesas cargadas.
+    private void asegurarDatosMinimosParaGUI() {
+        if (cafeteria == null) {
+            return;
+        }
+
+        if (cafeteria.getMesas() == null || cafeteria.getMesas().isEmpty()) {
+            cafeteria.getMesas().add(new Mesa(1, 4));
+            cafeteria.getMesas().add(new Mesa(2, 6));
+            cafeteria.getMesas().add(new Mesa(3, 8));
+        }
+
+        if (cafeteria.getJuegos() != null) {
+            int contador = 1;
+
+            for (Juego juego : cafeteria.getJuegos()) {
+                if (juego.getCopiasParaPrestamo().isEmpty()) {
+                    CopiaPrestamo copia = new CopiaPrestamo("P-" + contador, "Disponible", true, 0);
+                    copia.setJuegoAsociado(juego);
+                    juego.agregarCopiaPrestamo(copia);
+                }
+
+                if (juego.getCopiasParaVenta().isEmpty()) {
+                    CopiaVenta copiaVenta = new CopiaVenta("V-" + contador, 50000);
+                    juego.agregarCopiaVenta(copiaVenta);
+                }
+
+                contador++;
             }
         }
     }

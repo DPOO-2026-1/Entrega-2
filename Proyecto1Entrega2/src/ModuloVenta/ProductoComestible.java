@@ -13,4 +13,12 @@ public abstract class ProductoComestible implements ProductoVendible {
 	public double getTasaImpuesto() {
 		return 0.08;
 	}
+	
+	public String getNombre() {
+        return nombre;
+    }
+
+    public double getPrecioBase() {
+        return precioBase;
+    }
 }

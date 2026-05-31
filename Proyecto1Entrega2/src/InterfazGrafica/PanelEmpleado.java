@@ -17,37 +17,51 @@ public class PanelEmpleado extends JPanel {
 
     private CardLayout layoutInterno;
     private JPanel contenedor;
-    private JPanel panelHome;
-    private PanelTorneosDisponibles panelTorneosDisponibles;
-    private PanelTurnosEmpleado panelTurnosEmpleado;
+
+    private PanelAlquilerEmpleado panelAlquiler;
+    private PanelComprasEmpleado panelCompras;
+    private PanelTorneosDisponibles panelTorneos;
+    private PanelTurnosEmpleado panelTurnos;
+    private PanelSugerirMenu panelSugerir;
+    private PanelFavoritos panelFavoritos;
 
     private Runnable accionCerrarSesion;
 
     public PanelEmpleado() {
         setLayout(new CardLayout());
-        setBackground(EstiloUI.COLOR_FONDO_BEIGE);
 
         layoutInterno = new CardLayout();
         contenedor = new JPanel(layoutInterno);
         add(contenedor, "contenedor");
 
-        panelHome = crearHome();
-        panelTorneosDisponibles = new PanelTorneosDisponibles();
-        panelTurnosEmpleado = new PanelTurnosEmpleado();
+        panelAlquiler = new PanelAlquilerEmpleado();
+        panelCompras = new PanelComprasEmpleado();
+        panelTorneos = new PanelTorneosDisponibles();
+        panelTurnos = new PanelTurnosEmpleado();
+        panelSugerir = new PanelSugerirMenu();
+        panelFavoritos = new PanelFavoritos();
 
-        panelTorneosDisponibles.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
-        panelTurnosEmpleado.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        panelAlquiler.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        panelCompras.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        panelTorneos.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        panelTurnos.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        panelSugerir.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        panelFavoritos.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
 
-        contenedor.add(panelHome, "home");
-        contenedor.add(panelTorneosDisponibles, "torneos");
-        contenedor.add(panelTurnosEmpleado, "turnos");
+        contenedor.add(crearHome(), "home");
+        contenedor.add(panelAlquiler, "alquiler");
+        contenedor.add(panelCompras, "compras");
+        contenedor.add(panelTorneos, "torneos");
+        contenedor.add(panelTurnos, "turnos");
+        contenedor.add(panelSugerir, "sugerir");
+        contenedor.add(panelFavoritos, "favoritos");
     }
 
     private JPanel crearHome() {
         JPanel panel = new JPanel(null);
         panel.setBackground(EstiloUI.COLOR_FONDO_BEIGE);
 
-        JLabel titulo = new JLabel("Board Game Cafe - Panel Empleado");
+        JLabel titulo = new JLabel("  Board Game Cafe - Panel Empleado");
         titulo.setOpaque(true);
         titulo.setBackground(EstiloUI.COLOR_BANNER_CAFE);
         titulo.setForeground(Color.WHITE);
@@ -55,39 +69,79 @@ public class PanelEmpleado extends JPanel {
         titulo.setBounds(0, 0, 1280, 60);
         panel.add(titulo);
 
-        JButton btnTorneos = crearBoton("Torneos Disponibles");
-        btnTorneos.setBounds(180, 130, 180, 55);
+        JButton btnTorneos = boton("Torneos Disponibles");
+        btnTorneos.setBounds(170, 125, 180, 50);
         panel.add(btnTorneos);
 
-        JButton btnTurnos = crearBoton("Mis turnos");
-        btnTurnos.setBounds(550, 130, 180, 55);
+        JButton btnTurnos = boton("Mis turnos");
+        btnTurnos.setBounds(500, 125, 180, 50);
         panel.add(btnTurnos);
 
-        JButton btnCerrar = crearBoton("Cerrar Sesión");
-        btnCerrar.setBounds(920, 130, 180, 55);
+        JButton btnCerrar = boton("Cerrar Sesión");
+        btnCerrar.setBounds(830, 125, 180, 50);
         panel.add(btnCerrar);
 
         JLabel tarjeta = new JLabel(
-                "<html><div style='text-align:center;'>Bienvenido<br><br>"
-                        + "Desde aquí puedes consultar<br>"
-                        + "torneos, inscribirte o revisar tus<br>"
-                        + "turnos asignados</div></html>");
+                "<html><div style='text-align:center;'>"
+                        + "Bienvenido<br><br>"
+                        + "Desde aquí puedes consultar torneos,<br>"
+                        + "inscribirte o revisar tus turnos asignados.<br>"
+                        + "También puedes alquilar juegos, comprarlos,<br>"
+                        + "sugerir un plato para el menú o marcar juegos<br>"
+                        + "como favoritos"
+                        + "</div></html>",
+                JLabel.CENTER);
+
         tarjeta.setOpaque(true);
         tarjeta.setBackground(EstiloUI.COLOR_RECTANGULO_TEXTO);
         tarjeta.setForeground(Color.WHITE);
-        tarjeta.setHorizontalAlignment(JLabel.CENTER);
-        tarjeta.setFont(new Font("Arial", Font.PLAIN, 24));
-        tarjeta.setBounds(420, 260, 440, 170);
+        tarjeta.setFont(new Font("Arial", Font.PLAIN, 21));
+        tarjeta.setBounds(300, 230, 680, 235);
         panel.add(tarjeta);
 
+        JButton btnAlquiler = boton("Alquilar Juegos");
+        btnAlquiler.setBounds(120, 510, 180, 50);
+        panel.add(btnAlquiler);
+
+        JButton btnCompras = boton("Compras");
+        btnCompras.setBounds(400, 510, 180, 50);
+        panel.add(btnCompras);
+
+        JButton btnSugerir = boton("Sugerir Plato");
+        btnSugerir.setBounds(680, 510, 180, 50);
+        panel.add(btnSugerir);
+
+        JButton btnFavoritos = boton("Favoritos");
+        btnFavoritos.setBounds(960, 510, 180, 50);
+        panel.add(btnFavoritos);
+
         btnTorneos.addActionListener(e -> {
-            panelTorneosDisponibles.refrescarTabla();
+            panelTorneos.refrescarTabla();
             layoutInterno.show(contenedor, "torneos");
         });
 
         btnTurnos.addActionListener(e -> {
-            panelTurnosEmpleado.refrescar();
+            panelTurnos.refrescar();
             layoutInterno.show(contenedor, "turnos");
+        });
+
+        btnAlquiler.addActionListener(e -> {
+            panelAlquiler.refrescar();
+            layoutInterno.show(contenedor, "alquiler");
+        });
+
+        btnCompras.addActionListener(e -> {
+            panelCompras.refrescar();
+            layoutInterno.show(contenedor, "compras");
+        });
+
+        btnSugerir.addActionListener(e -> {
+            layoutInterno.show(contenedor, "sugerir");
+        });
+
+        btnFavoritos.addActionListener(e -> {
+            panelFavoritos.refrescar();
+            layoutInterno.show(contenedor, "favoritos");
         });
 
         btnCerrar.addActionListener(e -> {
@@ -99,7 +153,7 @@ public class PanelEmpleado extends JPanel {
         return panel;
     }
 
-    private JButton crearBoton(String texto) {
+    private JButton boton(String texto) {
         JButton boton = new JButton(texto);
         boton.setBackground(EstiloUI.COLOR_COMPONENTE_CAFE);
         boton.setForeground(Color.WHITE);
@@ -109,8 +163,13 @@ public class PanelEmpleado extends JPanel {
     }
 
     public void configurarContexto(Cafeteria cafeteria, Empleado empleado, GestorPersistencia persistencia) {
-        panelTorneosDisponibles.configurarContexto(cafeteria, empleado, persistencia);
-        panelTurnosEmpleado.configurarContexto(cafeteria, empleado);
+        panelAlquiler.configurarContexto(cafeteria, empleado, persistencia);
+        panelCompras.configurarContexto(cafeteria, empleado, persistencia);
+        panelTorneos.configurarContexto(cafeteria, empleado, persistencia);
+        panelTurnos.configurarContexto(cafeteria, empleado);
+        panelSugerir.configurarContexto(cafeteria, empleado, persistencia);
+        panelFavoritos.configurarContexto(cafeteria, empleado, persistencia);
+
         layoutInterno.show(contenedor, "home");
     }
 

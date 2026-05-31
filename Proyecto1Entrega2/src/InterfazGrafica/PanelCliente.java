@@ -17,37 +17,47 @@ public class PanelCliente extends JPanel {
 
     private CardLayout layoutInterno;
     private JPanel contenedor;
-    private JPanel panelHome;
-    private PanelTorneosDisponibles panelTorneosDisponibles;
-    private PanelMiPerfil panelMiPerfil;
+
+    private PanelPrestamosCliente panelPrestamos;
+    private PanelComprasCliente panelCompras;
+    private PanelTorneosDisponibles panelTorneos;
+    private PanelFavoritos panelFavoritos;
+    private PanelMiPerfil panelPerfil;
 
     private Runnable accionCerrarSesion;
 
     public PanelCliente() {
         setLayout(new CardLayout());
-        setBackground(EstiloUI.COLOR_FONDO_BEIGE);
 
         layoutInterno = new CardLayout();
         contenedor = new JPanel(layoutInterno);
         add(contenedor, "contenedor");
 
-        panelHome = crearHome();
-        panelTorneosDisponibles = new PanelTorneosDisponibles();
-        panelMiPerfil = new PanelMiPerfil();
+        panelPrestamos = new PanelPrestamosCliente();
+        panelCompras = new PanelComprasCliente();
+        panelTorneos = new PanelTorneosDisponibles();
+        panelFavoritos = new PanelFavoritos();
+        panelPerfil = new PanelMiPerfil();
 
-        panelTorneosDisponibles.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
-        panelMiPerfil.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        panelPrestamos.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        panelCompras.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        panelTorneos.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        panelFavoritos.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        panelPerfil.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
 
-        contenedor.add(panelHome, "home");
-        contenedor.add(panelTorneosDisponibles, "torneos");
-        contenedor.add(panelMiPerfil, "perfil");
+        contenedor.add(crearHome(), "home");
+        contenedor.add(panelPrestamos, "prestamos");
+        contenedor.add(panelCompras, "compras");
+        contenedor.add(panelTorneos, "torneos");
+        contenedor.add(panelFavoritos, "favoritos");
+        contenedor.add(panelPerfil, "perfil");
     }
 
     private JPanel crearHome() {
         JPanel panel = new JPanel(null);
         panel.setBackground(EstiloUI.COLOR_FONDO_BEIGE);
 
-        JLabel titulo = new JLabel("Board Game Cafe - Panel Cliente");
+        JLabel titulo = new JLabel("  Board Game Cafe - Panel Cliente");
         titulo.setOpaque(true);
         titulo.setBackground(EstiloUI.COLOR_BANNER_CAFE);
         titulo.setForeground(Color.WHITE);
@@ -55,39 +65,72 @@ public class PanelCliente extends JPanel {
         titulo.setBounds(0, 0, 1280, 60);
         panel.add(titulo);
 
-        JButton btnTorneos = crearBoton("Torneos Disponibles");
-        btnTorneos.setBounds(180, 130, 180, 55);
+        JButton btnTorneos = boton("Torneos Disponibles");
+        btnTorneos.setBounds(210, 130, 180, 50);
         panel.add(btnTorneos);
 
-        JButton btnPerfil = crearBoton("Mi perfil");
-        btnPerfil.setBounds(550, 130, 180, 55);
+        JButton btnPerfil = boton("Mi perfil");
+        btnPerfil.setBounds(530, 130, 180, 50);
         panel.add(btnPerfil);
 
-        JButton btnCerrar = crearBoton("Cerrar Sesión");
-        btnCerrar.setBounds(920, 130, 180, 55);
+        JButton btnCerrar = boton("Cerrar Sesión");
+        btnCerrar.setBounds(850, 130, 180, 50);
         panel.add(btnCerrar);
 
         JLabel tarjeta = new JLabel(
-                "<html><div style='text-align:center;'>Bienvenido<br><br>"
+                "<html><div style='text-align:center;'>"
+                        + "Bienvenido<br><br>"
                         + "Desde aquí puedes consultar<br>"
                         + "torneos, inscribirte o revisar tu<br>"
-                        + "perfil en la cafetería</div></html>");
+                        + "perfil en la cafetería. También<br>"
+                        + "puedes hacer préstamos de<br>"
+                        + "juegos, comprarlos o marcarlos<br>"
+                        + "como favoritos"
+                        + "</div></html>",
+                JLabel.CENTER);
+
         tarjeta.setOpaque(true);
         tarjeta.setBackground(EstiloUI.COLOR_RECTANGULO_TEXTO);
         tarjeta.setForeground(Color.WHITE);
-        tarjeta.setHorizontalAlignment(JLabel.CENTER);
-        tarjeta.setFont(new Font("Arial", Font.PLAIN, 24));
-        tarjeta.setBounds(420, 260, 440, 170);
+        tarjeta.setFont(new Font("Arial", Font.PLAIN, 22));
+        tarjeta.setBounds(360, 250, 560, 230);
         panel.add(tarjeta);
 
+        JButton btnPrestamos = boton("Préstamos");
+        btnPrestamos.setBounds(210, 510, 180, 50);
+        panel.add(btnPrestamos);
+
+        JButton btnCompras = boton("Compras");
+        btnCompras.setBounds(530, 510, 180, 50);
+        panel.add(btnCompras);
+
+        JButton btnFavoritos = boton("Favoritos");
+        btnFavoritos.setBounds(850, 510, 180, 50);
+        panel.add(btnFavoritos);
+
         btnTorneos.addActionListener(e -> {
-            panelTorneosDisponibles.refrescarTabla();
+            panelTorneos.refrescarTabla();
             layoutInterno.show(contenedor, "torneos");
         });
 
         btnPerfil.addActionListener(e -> {
-            panelMiPerfil.refrescar();
+            panelPerfil.refrescar();
             layoutInterno.show(contenedor, "perfil");
+        });
+
+        btnPrestamos.addActionListener(e -> {
+            panelPrestamos.refrescar();
+            layoutInterno.show(contenedor, "prestamos");
+        });
+
+        btnCompras.addActionListener(e -> {
+            panelCompras.refrescar();
+            layoutInterno.show(contenedor, "compras");
+        });
+
+        btnFavoritos.addActionListener(e -> {
+            panelFavoritos.refrescar();
+            layoutInterno.show(contenedor, "favoritos");
         });
 
         btnCerrar.addActionListener(e -> {
@@ -99,7 +142,7 @@ public class PanelCliente extends JPanel {
         return panel;
     }
 
-    private JButton crearBoton(String texto) {
+    private JButton boton(String texto) {
         JButton boton = new JButton(texto);
         boton.setBackground(EstiloUI.COLOR_COMPONENTE_CAFE);
         boton.setForeground(Color.WHITE);
@@ -109,8 +152,12 @@ public class PanelCliente extends JPanel {
     }
 
     public void configurarContexto(Cafeteria cafeteria, Cliente cliente, GestorPersistencia persistencia) {
-        panelTorneosDisponibles.configurarContexto(cafeteria, cliente, persistencia);
-        panelMiPerfil.configurarContexto(cafeteria, cliente);
+        panelPrestamos.configurarContexto(cafeteria, cliente, persistencia);
+        panelCompras.configurarContexto(cafeteria, cliente, persistencia);
+        panelTorneos.configurarContexto(cafeteria, cliente, persistencia);
+        panelFavoritos.configurarContexto(cafeteria, cliente, persistencia);
+        panelPerfil.configurarContexto(cafeteria, cliente);
+
         layoutInterno.show(contenedor, "home");
     }
 
