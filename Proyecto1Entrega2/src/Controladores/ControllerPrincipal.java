@@ -21,6 +21,7 @@ public class ControllerPrincipal {
     private OpcionesClienteController controladorOpcionesCliente;
     private OpcionesController controladorOpciones;
     private ControladorRegistrarCliente controladorRegistrarCliente;
+    private AdminController controladorAdmin;
 
     private Cafeteria cafeteria;
     private Usuario usuarioActual;
@@ -128,6 +129,13 @@ public class ControllerPrincipal {
 
                 vista.cambiarPantalla("PanelEmpleado");
             }
+        }
+        else if ("PanelAdmin".equals(nombrePantalla)) {
+            if (controladorAdmin == null) {
+                // Creamos el nuevo controlador que te daré a continuación
+                controladorAdmin = new AdminController(vista, this); 
+            }
+            vista.cambiarPantalla("PanelAdmin");
         }
     }
     

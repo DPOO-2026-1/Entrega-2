@@ -54,12 +54,13 @@ public class PanelOpciones extends JPanel {
         btnEmpleado = new JButton("Empleado");
         btnAdministrador = new JButton("Administrador");
         btnCliente = new JButton("Cliente");
-
-        btnEmpleado.setBackground(Color.WHITE);
-        btnAdministrador.setBackground(Color.WHITE);
-        btnCliente.setBackground(EstiloUI.COLOR_BANNER_CAFE);
-        btnCliente.setForeground(Color.WHITE);
-
+        
+        // Cambio porque me molestaba que estuvieran mal los colores
+        
+        aplicarEstiloBotonRol(btnEmpleado);
+        aplicarEstiloBotonRol(btnAdministrador);
+        aplicarEstiloBotonRol(btnCliente);
+        
         panelBotones.add(btnEmpleado);
         panelBotones.add(btnAdministrador);
         panelBotones.add(btnCliente);
@@ -82,6 +83,16 @@ public class PanelOpciones extends JPanel {
         panelCentro.add(labelImagen, gbc);
 
         add(panelCentro, BorderLayout.CENTER);
+    }
+    
+    // método auxiliar para no repetir estilo
+    private void aplicarEstiloBotonRol(JButton boton) {
+        boton.setBackground(EstiloUI.COLOR_BANNER_CAFE);
+        boton.setForeground(Color.WHITE);
+        boton.setFont(EstiloUI.FUENTE_ETIQUETA);
+        boton.setFocusPainted(false);
+        boton.setBorderPainted(false);
+        boton.setOpaque(true);
     }
 
     // Usamos getters y setters para poder hacer el redigimiento con action

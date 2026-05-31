@@ -41,13 +41,15 @@ public class LoginController {
                         jefe.moverseA("PanelCliente");
                     } else if (usuarioAutenticado instanceof Empleado) {
                         jefe.moverseA("PanelEmpleado");
-                    } else {
-                        // Aca va PanelAdmin @juanes
-                        jefe.moverseA("PanelAdmin");
-                        System.out.println("Usuario administrador autenticado. Falta conectar PanelAdmin.");
-                    }
+                    } 
+                    String tipoUsuario = usuarioAutenticado.getClass().getSimpleName();
                     JOptionPane.showMessageDialog(vista, "Bienvenido de nuevo, " + usuarioAutenticado.getNombre() + ".", "Inicio de Sesión", JOptionPane.INFORMATION_MESSAGE);
                     
+                    if (tipoUsuario.equals("Administrador")) {
+                        jefe.moverseA("PanelAdmin");
+                    } else if (tipoUsuario.equals("Cliente")) {
+                        jefe.moverseA("PanelOpcionesCliente");
+                    } 
                     // En consolas futuras se redirigirá a los páneles correspondientes según el rol
                     System.out.println("Usuario autenticado correctamente: " + usuarioAutenticado.getNombre() + " (" + usuarioAutenticado.getClass().getSimpleName() + ")");
                 } else {
