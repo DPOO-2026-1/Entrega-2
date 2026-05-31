@@ -3,6 +3,8 @@ package Controladores;
 import InterfazGrafica.PanelLogin;
 import InterfazGrafica.VentanaPrincipal;
 import Usuario.Usuario;
+import Usuario.Cliente;
+import Usuario.Empleado;
 import javax.swing.JOptionPane;
 
 public class LoginController {
@@ -34,6 +36,16 @@ public class LoginController {
 
                 if (usuarioAutenticado != null) {
                     jefe.setUsuarioActual(usuarioAutenticado);
+                    // Modificaciones para PanelCliente y PanelEmpleado
+                    if (usuarioAutenticado instanceof Cliente) {
+                        jefe.moverseA("PanelCliente");
+                    } else if (usuarioAutenticado instanceof Empleado) {
+                        jefe.moverseA("PanelEmpleado");
+                    } else {
+                        // Aca va PanelAdmin @juanes
+                        jefe.moverseA("PanelAdmin");
+                        System.out.println("Usuario administrador autenticado. Falta conectar PanelAdmin.");
+                    }
                     JOptionPane.showMessageDialog(vista, "Bienvenido de nuevo, " + usuarioAutenticado.getNombre() + ".", "Inicio de Sesión", JOptionPane.INFORMATION_MESSAGE);
                     
                     // En consolas futuras se redirigirá a los páneles correspondientes según el rol

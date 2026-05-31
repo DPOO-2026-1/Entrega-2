@@ -2,6 +2,8 @@ package Controladores;
 
 import InterfazGrafica.VentanaPrincipal;
 import Usuario.Usuario;
+import Usuario.Cliente;
+import Usuario.Empleado;
 import World.Cafeteria;
 import Persistencia.GestorPersistencia;
 import Usuario.GestorUsuarios;
@@ -28,7 +30,7 @@ public class ControllerPrincipal {
         this.persistencia = new GestorPersistencia("data/");
         GestorUsuarios gestorUsuarios = new GestorUsuarios(this.persistencia, null);
         GestorVentas gestorVentas = new GestorVentas(this.persistencia);
-
+     
         // 2. Inicializar la instancia del Singleton Cafeteria
         this.cafeteria = Cafeteria.getInstance(80, "Board Nights", gestorUsuarios, gestorVentas);
         gestorUsuarios.setCafeteria(this.cafeteria);
@@ -86,10 +88,48 @@ public class ControllerPrincipal {
             }
             vista.cambiarPantalla("PanelRegistrarCliente");
         }
+        // Cambios agregados para PanelCliente y PanelEmpleado
+        else if ("PanelCliente".equals(nombrePantalla)) {
+            if (usuarioActual instanceof Cliente) {
+                vista.getPanelCliente().configurarContexto(
+                        cafeteria,
+                        (Cliente) usuarioActual,
+                        persistencia
+                );
+
+                vista.getPanelCliente().setAccionCerrarSesion(() -> {
+                    usuarioActual.cerrarSesion();
+                    usuarioActual = null;
+                    vista.cambiarPantalla("PanelOpciones");
+                });
+
+                vista.cambiarPantalla("PanelCliente");
+            }
+        } else if ("PanelEmpleado".equals(nombrePantalla)) {
+            if (usuarioActual instanceof Empleado) {
+                vista.getPanelEmpleado().configurarContexto(
+                        cafeteria,
+                        (Empleado) usuarioActual,
+                        persistencia
+                );
+
+                vista.getPanelEmpleado().setAccionCerrarSesion(() -> {
+                    usuarioActual.cerrarSesion();
+                    usuarioActual = null;
+                    vista.cambiarPantalla("PanelOpciones");
+                });
+
+                vista.cambiarPantalla("PanelEmpleado");
+            }
+        }
     }
 
     public Cafeteria getCafeteria() {
         return cafeteria;
+    }
+    
+    public GestorPersistencia getPersistencia() {
+        return persistencia;
     }
 
     public void setUsuarioActual(Usuario usuario) {

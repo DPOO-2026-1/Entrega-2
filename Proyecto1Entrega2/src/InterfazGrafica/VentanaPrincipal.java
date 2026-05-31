@@ -12,6 +12,8 @@ public class VentanaPrincipal extends JFrame {
     private PanelLogin panelLogin;
     private PanelOpcionesCliente panelOpcionesCliente;
     private PanelRegistrarCliente panelRegistrarCliente;
+    private PanelCliente panelCliente;
+    private PanelEmpleado panelEmpleado;
 
     public VentanaPrincipal() {
         super("Ventana Principal");
@@ -29,11 +31,15 @@ public class VentanaPrincipal extends JFrame {
         panelLogin = new PanelLogin();
         panelOpcionesCliente = new PanelOpcionesCliente();
         panelRegistrarCliente = new PanelRegistrarCliente();
+        panelCliente = new PanelCliente();
+        panelEmpleado = new PanelEmpleado();
 
         this.add(panelOpciones, "PanelOpciones");
         this.add(panelLogin, "PanelLogin");
         this.add(panelOpcionesCliente, "PanelOpcionesCliente");
         this.add(panelRegistrarCliente, "PanelRegistrarCliente");
+        this.add(panelCliente, "PanelCliente");
+        this.add(panelEmpleado, "PanelEmpleado");
     }
 
     // Método para cambiar la pantalla visible mediante su nombre clave
@@ -57,7 +63,16 @@ public class VentanaPrincipal extends JFrame {
     public PanelRegistrarCliente getPanelPanelRegistrarCliente() {
         return panelRegistrarCliente;
     }
+    
+    // Getters de PanelCliente y PanelEmpleado
+    public PanelCliente getPanelCliente() {
+        return panelCliente;
+    }
 
+    public PanelEmpleado getPanelEmpleado() {
+        return panelEmpleado;
+    }
+    
     public static void main(String[] args) {
         VentanaPrincipal ventana = new VentanaPrincipal();
         new ControllerPrincipal(ventana);
