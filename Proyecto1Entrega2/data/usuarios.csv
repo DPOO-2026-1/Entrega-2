@@ -1,9 +1,5 @@
 CLIENTE;juandago;12345;juandago;false;false;0
 CLIENTE;juandago2;12345.;GOnzalo;false;false;0
-EMPLEADO;santi1;12345;Santi;false;false;0
-;;;;;;
-;;;;;;
-;;;;;;
-;;;;;;
-;;;;;;
-;;;;;;
+CLIENTE;juan_m;12345;Juanjo;false;false;0
+CLIENTE;pepe1;12345;Pera;false;false;0
+CLIENTE;Santi123;clave1;Santiago Escobar;false;false;0

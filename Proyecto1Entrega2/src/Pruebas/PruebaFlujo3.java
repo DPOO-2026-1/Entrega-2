@@ -20,12 +20,15 @@ import java.util.List;
 import java.util.Date;
 
 /**
- * Prueba de Flujo 3: Administración extrema (Robos, reparación y reportes financieros).
+ * Prueba de Flujo 3: Administración extrema (Robos, reparación y reportes
+ * financieros).
  *
  * Cubre:
  * - Marcar copia como desaparecida (robada).
- * - Mover copia de inventario de ventas al de préstamos (reparación de inventario).
- * - Informe de ventas que segrega: IVA 19% (juegos) vs Consumo 8% + Propina 10% (comida).
+ * - Mover copia de inventario de ventas al de préstamos (reparación de
+ * inventario).
+ * - Informe de ventas que segrega: IVA 19% (juegos) vs Consumo 8% + Propina 10%
+ * (comida).
  */
 @DisplayName("Flujo 3 - Administración: Robos, Inventario y Reportes Financieros")
 public class PruebaFlujo3 {
@@ -38,7 +41,6 @@ public class PruebaFlujo3 {
         admin = new Administrador("admin01", "adminPass", "Carlos Admin");
         juegoConRobo = new Juego("Catan", 1995, "Kosmos", 3, 4, 10, "Tablero", false);
 
-        // TODO: Descomentar cuando CopiaPrestamo tenga constructor público.
         CopiaPrestamo copiaRobada = new CopiaPrestamo("P-CAT-001", "Prestado", false, 3);
         juegoConRobo.agregarCopiaPrestamo(copiaRobada);
     }
@@ -46,38 +48,34 @@ public class PruebaFlujo3 {
     @Test
     @DisplayName("Paso 1: Administrador marca una copia como desaparecida (robada)")
     public void testMarcarCopiaComoDesaparecida() {
-        // TODO: Requiere CopiaPrestamo con constructor público. Habilitarlo cuando esté disponible.
+
         CopiaPrestamo copia = new CopiaPrestamo("P-CAT-001", "Activo", false, 3);
         admin.darJuegoPorRobado(copia);
         assertFalse(copia.estaDisponible(), "La copia robada no debe estar disponible.");
         assertEquals("Desaparecida", copia.getEstado(), "El estado debe ser 'Desaparecida'.");
 
-        // Por ahora documentamos que el método existe con la aserción sobre el Administrador
         assertNotNull(admin, "El administrador debe estar correctamente instanciado.");
     }
 
     @Test
     @DisplayName("Paso 2: Mover una copia de venta a inventario de préstamo para suplir faltante")
     public void testMoverCopiaDeVentaAPrestamo() {
-        // TODO: Requiere CopiaPrestamo y CopiaVenta con constructores públicos.
         // Lógica esperada del flujo:
         // 1. Admin verifica que no hay copias de préstamo disponibles.
-        // 2. Admin toma una CopiaVenta del inventario de ventas y la convierte a préstamo.
-        // 3. Se marca la CopiaVenta como "removida" o se elimina del inventario de ventas.
+        // 2. Admin toma una CopiaVenta del inventario de ventas y la convierte a
+        // préstamo.
+        // 3. Se marca la CopiaVenta como "removida" o se elimina del inventario de
+        // ventas.
         // 4. Se crea una nueva CopiaPrestamo y se añade al juego.
         //
         CopiaVenta copiaVenta = new CopiaVenta("V-CAT-001", 65000.0);
         juegoConRobo.agregarCopiaVenta(copiaVenta);
-        // int copiasVentaAntes = juegoConRobo.getCopiasParaVenta().size(); // El metodo getCopiasParaVenta no existe
-        
-        admin.moverJuegoAPrestamo(copiaVenta, juegoConRobo); 
-        
-        assertNotNull(juegoConRobo.getCopiaDisponible(), "Debe haber una copia de préstamo disponible.");
+        // int copiasVentaAntes = juegoConRobo.getCopiasParaVenta().size(); // El metodo
+        // getCopiasParaVenta no existe
 
-        // Documentamos el problema del método: el nombre del método actual es engañoso.
-        // TODO: El método `moverJuegoAVenta` en Administrador mueve prestamo→venta,
-        // pero el flujo 3 requiere el movimiento inverso (venta→prestamo).
-        // Se necesita un método adicional `moverJuegoAPrestamo(CopiaVenta, Juego)`.
+        admin.moverJuegoAPrestamo(copiaVenta, juegoConRobo);
+
+        assertNotNull(juegoConRobo.getCopiaDisponible(), "Debe haber una copia de préstamo disponible.");
         assertTrue(true, "Placeholder - pendiente de implementación del método correcto en Administrador.");
     }
 
@@ -89,7 +87,8 @@ public class PruebaFlujo3 {
         double ivaJuego = precioJuego * 0.19; // 9,500
         double totalConIvaJuego = precioJuego + ivaJuego; // 59,500
 
-        // Caso de bebida/comida: precio $10,000, Impuesto al Consumo 8%, Propina 10% del subtotal
+        // Caso de bebida/comida: precio $10,000, Impuesto al Consumo 8%, Propina 10%
+        // del subtotal
         double precioComida = 10000.0;
         double impuestoConsumoComida = precioComida * 0.08; // 800
         double propinaComida = precioComida * 0.10; // 1,000 (antes de impuestos)
@@ -97,25 +96,24 @@ public class PruebaFlujo3 {
 
         // Verificamos la matemática del informe
         assertEquals(9500.0, ivaJuego, 0.01,
-            "El IVA del 19% sobre $50,000 debe ser $9,500.");
+                "El IVA del 19% sobre $50,000 debe ser $9,500.");
         assertEquals(59500.0, totalConIvaJuego, 0.01,
-            "El total del juego con IVA debe ser $59,500.");
+                "El total del juego con IVA debe ser $59,500.");
         assertEquals(800.0, impuestoConsumoComida, 0.01,
-            "El Impuesto al Consumo del 8% sobre $10,000 debe ser $800.");
+                "El Impuesto al Consumo del 8% sobre $10,000 debe ser $800.");
         assertEquals(1000.0, propinaComida, 0.01,
-            "La propina del 10% sobre $10,000 debe ser $1,000.");
+                "La propina del 10% sobre $10,000 debe ser $1,000.");
         assertEquals(11800.0, totalComida, 0.01,
-            "El total de la comida con impuesto y propina debe ser $11,800.");
+                "El total de la comida con impuesto y propina debe ser $11,800.");
 
         // Verificamos las tasas de impuesto de las clases concretas
         // CopiaVenta (juego de venta) debe tener 19%
-        // TODO: CopiaVenta necesita constructor. Descomentar cuando esté disponible.
+
         CopiaVenta cv = new CopiaVenta("V-001", 50000.0);
         assertEquals(0.19, cv.getTasaImpuesto(), 0.001, "CopiaVenta debe tener tasa de 19%.");
 
         // ProductoComestible (comida) debe tener 8%
         // La clase abstracta devuelve 0.08, verificable con cualquier subclase concreta
-        // TODO: Bebida o Pasteleria necesitan constructores. Descomentar cuando esté disponible.
         Bebida bebida = new Bebida("Cafe", 10000.0, true, false);
         assertEquals(0.08, bebida.getTasaImpuesto(), 0.001, "Bebida debe tener tasa de 8%.");
 

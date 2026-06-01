@@ -19,10 +19,9 @@ public class PruebaRegistroCliente {
     @BeforeEach
     public void setUp() {
         Cafeteria.resetInstance();
-        cafeteria = Cafeteria.getInstance(20, "Cafe Test", null, null);
-        gestorUsuarios = new GestorUsuarios(null, cafeteria);
-        // Aseguramos que la lista general referencie a la misma
-        gestorUsuarios.setUsuarios(cafeteria.getUsuarios());
+        gestorUsuarios = new GestorUsuarios(null, null);
+        cafeteria = Cafeteria.getInstance(20, "Cafe Test", gestorUsuarios, null);
+        gestorUsuarios.setCafeteria(cafeteria);
     }
 
     @Test
