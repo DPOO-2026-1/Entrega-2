@@ -5,11 +5,26 @@ import java.awt.*;
 
 public class PanelGraficaBarras extends JPanel {
     // Datos de prueba (5 días, valores netos para Cafetería y Juegos)
-    private double[] valoresCafeteria = {120, 150, 90, 200, 180};
-    private double[] valoresJuegos = {80, 60, 110, 150, 130};
+	private double[] valoresCafeteria;
+    private double[] valoresJuegos;
+    private String[] etiquetasDias;
 
     public PanelGraficaBarras() {
-        setPreferredSize(new Dimension(400, 300));
+    	// CAMBIO IMPLEMENTADO: valores iniciales vacíos; se actualizan desde ventas reales
+        this.valoresCafeteria = new double[5];
+        this.valoresJuegos = new double[5];
+        this.etiquetasDias = new String[]{"D1", "D2", "D3", "D4", "D5"};
+
+        setPreferredSize(new Dimension(430, 300));
+        setBackground(EstiloUI.COLOR_FONDO_BEIGE);
+    }
+    
+    // CAMBIO IMPLEMENTADO: setter para que PanelVisualizaciones pase datos reales
+    public void actualizarDatos(double[] cafeteria, double[] juegos, String[] etiquetas) {
+        this.valoresCafeteria = cafeteria != null ? cafeteria : new double[5];
+        this.valoresJuegos = juegos != null ? juegos : new double[5];
+        this.etiquetasDias = etiquetas != null ? etiquetas : new String[]{"D1", "D2", "D3", "D4", "D5"};
+        repaint();
     }
 
     @Override
@@ -20,33 +35,73 @@ public class PanelGraficaBarras extends JPanel {
 
         int ancho = getWidth();
         int alto = getHeight();
-        int margen = 40;
+
+        int margenIzq = 50;
+        int margenInf = 45;
+        int margenSup = 45;
+        int margenDer = 25;
+        int areaAlto = alto - margenSup - margenInf;
+
+        g2d.setColor(EstiloUI.COLOR_TEXTO_OSCURO);
+        g2d.setFont(new Font("SansSerif", Font.BOLD, 14));
+        g2d.drawString("Ventas netas últimos 5 días", margenIzq, 22);
+
+        g2d.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        g2d.drawString("Sin impuestos", margenIzq, 38);
+
+        g2d.setColor(Color.DARK_GRAY);
         
         // Ejes
-        g2d.drawLine(margen, alto - margen, ancho - margen, alto - margen); // X
-        g2d.drawLine(margen, alto - margen, margen, margen); // Y
+        g2d.drawLine(margenIzq, alto - margenInf, ancho - margenDer, alto - margenInf); // X
+        g2d.drawLine(margenIzq, alto - margenInf, margenIzq, margenSup); // Y
 
-        double maxValor = 250.0; // En producción, calcular el máximo real iterando el array
-        int anchoBarra = 20;
-        int separacion = 15;
-        
-        for (int i = 0; i < 5; i++) {
-            int x = margen + separacion + i * (anchoBarra * 2 + separacion);
-            
-            // Barra Cafetería
-            int altoBarraCafe = (int) ((valoresCafeteria[i] / maxValor) * (alto - 2 * margen));
-            g2d.setColor(new Color(239, 83, 80)); // Coral suave
-            g2d.fillRect(x, alto - margen - altoBarraCafe, anchoBarra, altoBarraCafe);
-            
-            // Barra Juegos
-            int altoBarraJuegos = (int) ((valoresJuegos[i] / maxValor) * (alto - 2 * margen));
-            g2d.setColor(new Color(66, 165, 245)); // Azul Royal
-            g2d.fillRect(x + anchoBarra, alto - margen - altoBarraJuegos, anchoBarra, altoBarraJuegos);
-            
-            // Etiqueta Eje X
-            g2d.setColor(Color.BLACK);
-            g2d.drawString("Día " + (i+1), x, alto - margen + 15);
+        double maxValor = 1.0;
+
+        for (double v : valoresCafeteria) {
+            maxValor = Math.max(maxValor, v);
         }
-        g2d.drawString("Ventas de los últimos 5 días", margen, margen - 10);
+
+        for (double v : valoresJuegos) {
+            maxValor = Math.max(maxValor, v);
+        }
+
+        int grupos = 5;
+        int anchoGrupo = Math.max(55, (ancho - margenIzq - margenDer) / grupos);
+        int anchoBarra = Math.max(12, anchoGrupo / 4);
+
+        for (int i = 0; i < grupos; i++) {
+            int xBase = margenIzq + i * anchoGrupo + anchoGrupo / 4;
+
+            int hCafe = (int) ((valorSeguro(valoresCafeteria, i) / maxValor) * areaAlto);
+            g2d.setColor(EstiloUI.COLOR_BANNER_CAFE);
+            g2d.fillRect(xBase, alto - margenInf - hCafe, anchoBarra, hCafe);
+
+            int hJuegos = (int) ((valorSeguro(valoresJuegos, i) / maxValor) * areaAlto);
+            g2d.setColor(EstiloUI.COLOR_COMPONENTE_CAFE);
+            g2d.fillRect(xBase + anchoBarra + 4, alto - margenInf - hJuegos, anchoBarra, hJuegos);
+
+            g2d.setColor(EstiloUI.COLOR_TEXTO_OSCURO);
+            g2d.setFont(new Font("SansSerif", Font.PLAIN, 10));
+            g2d.drawString(etiquetaSegura(i), xBase - 4, alto - margenInf + 15);
+        }
+
+        int leyendaY = alto - 12;
+
+        g2d.setColor(EstiloUI.COLOR_BANNER_CAFE);
+        g2d.fillRect(margenIzq, leyendaY - 9, 10, 10);
+        g2d.setColor(EstiloUI.COLOR_TEXTO_OSCURO);
+        g2d.drawString("Cafetería", margenIzq + 14, leyendaY);
+
+        g2d.setColor(EstiloUI.COLOR_COMPONENTE_CAFE);
+        g2d.fillRect(margenIzq + 105, leyendaY - 9, 10, 10);
+        g2d.setColor(EstiloUI.COLOR_TEXTO_OSCURO);
+        g2d.drawString("Juegos", margenIzq + 119, leyendaY);
+    }
+    private double valorSeguro(double[] arr, int i) {
+        return arr != null && i >= 0 && i < arr.length ? arr[i] : 0.0;
+    }
+
+    private String etiquetaSegura(int i) {
+        return etiquetasDias != null && i >= 0 && i < etiquetasDias.length ? etiquetasDias[i] : "D" + (i + 1);
     }
 }

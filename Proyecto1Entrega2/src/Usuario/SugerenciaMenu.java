@@ -11,6 +11,11 @@ public class SugerenciaMenu {
         this.estado = estado;
         this.creadoPor = creadoPor;
     }
+	
+	// Getter necesario para mostrar las sugerencias en el PanelMenuAdmin.
+    public String getDescripcion() {
+        return descripcion;
+    }
 
     public String getEstado() {
         return estado;

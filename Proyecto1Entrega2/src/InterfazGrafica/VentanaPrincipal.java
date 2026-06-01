@@ -2,10 +2,13 @@ package InterfazGrafica;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import Controladores.ControllerPrincipal;
 
 public class VentanaPrincipal extends JFrame {
     private CardLayout controlLayout;
+    private Runnable accionGuardarAlCerrar;	
 
     // Atributos para poder acceder a los paneles desde fuera
     private PanelOpciones panelOpciones;
@@ -18,7 +21,15 @@ public class VentanaPrincipal extends JFrame {
 
     public VentanaPrincipal() {
         super("Ventana Principal");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        // CAMBIO IMPLEMENTADO: ahora el cierre pasa por WindowListener para guardar antes de salir
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                guardarYSalir();
+            }
+        });
         setSize(1280, 720);
         setLocationRelativeTo(null);
         // Para configurar los componentes en card layout
@@ -48,6 +59,28 @@ public class VentanaPrincipal extends JFrame {
     // Método para cambiar la pantalla visible mediante su nombre clave
     public void cambiarPantalla(String nombrePantalla) {
         controlLayout.show(this.getContentPane(), nombrePantalla);
+    }
+    
+    // CAMBIO IMPLEMENTADO: el controlador principal inyecta aquí la persistencia
+    public void setAccionGuardarAlCerrar(Runnable accionGuardarAlCerrar) {
+        this.accionGuardarAlCerrar = accionGuardarAlCerrar;
+    }
+    private void guardarYSalir() {
+        try {
+            if (accionGuardarAlCerrar != null) {
+                accionGuardarAlCerrar.run();
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No se pudieron guardar los datos antes de cerrar: " + ex.getMessage(),
+                    "Error de guardado",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+
+        dispose();
+        System.exit(0);
     }
 
     // Getters para que el ControllerPrincipal obtenga los paneles

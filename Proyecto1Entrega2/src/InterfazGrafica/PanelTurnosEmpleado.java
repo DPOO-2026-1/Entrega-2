@@ -14,6 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
+import Persistencia.GestorPersistencia;
 import Usuario.DiaSemana;
 import Usuario.DiaTurno;
 import Usuario.Empleado;
@@ -25,6 +26,7 @@ public class PanelTurnosEmpleado extends JPanel {
 
     private Cafeteria cafeteria;
     private Empleado empleado;
+    private GestorPersistencia persistencia;
 
     private JTable tablaTurnos;
     private DefaultTableModel modeloTabla;
@@ -162,10 +164,12 @@ public class PanelTurnosEmpleado extends JPanel {
         combo.setForeground(Color.WHITE);
         return combo;
     }
-
-    public void configurarContexto(Cafeteria cafeteria, Empleado empleado) {
+    
+    // CAMBIO - Sobrecarga para recibir persistencia y guardar solicitudes de turno.
+    public void configurarContexto(Cafeteria cafeteria, Empleado empleado, GestorPersistencia persistencia) {
         this.cafeteria = cafeteria;
         this.empleado = empleado;
+        this.persistencia = persistencia;
         refrescar();
     }
 
@@ -218,13 +222,22 @@ public class PanelTurnosEmpleado extends JPanel {
             DiaSemana dia = (DiaSemana) comboDiaCambio.getSelectedItem();
             SolicitudTurno solicitud = empleado.solicitarCambioTurno(dia);
 
+            // =====================================================
+            // CAMBIO La solicitud ahora se guarda en Cafeteria para que el admin pueda aprobarla/rechazarla.
+            if (cafeteria != null) {
+                cafeteria.getSolicitudesTurno().add(solicitud);
+            }
+
+            if (persistencia != null && cafeteria != null) {
+                persistencia.guardarTodo(cafeteria);
+            }
+
             lblEstado.setText("Estado: Solicitud de cambio " + solicitud.getEstado() + " para " + solicitud.getDia());
             JOptionPane.showMessageDialog(this, "Solicitud de cambio creada correctamente.");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "No se pudo solicitar cambio", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     private void solicitarIntercambio() {
         try {
             String loginOtro = (String) comboEmpleado.getSelectedItem();
@@ -237,13 +250,21 @@ public class PanelTurnosEmpleado extends JPanel {
 
             SolicitudTurno solicitud = empleado.solicitarIntercambioTurno(otro, dia);
 
+            // CAMBIO La solicitud ahora se guarda en Cafeteria para que el admin pueda aprobarla/rechazarla.
+            if (cafeteria != null) {
+                cafeteria.getSolicitudesTurno().add(solicitud);
+            }
+
+            if (persistencia != null && cafeteria != null) {
+                persistencia.guardarTodo(cafeteria);
+            }
+
             lblEstado.setText("Estado: Solicitud de intercambio " + solicitud.getEstado() + " para " + solicitud.getDia());
             JOptionPane.showMessageDialog(this, "Solicitud de intercambio creada correctamente.");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "No se pudo solicitar intercambio", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     private Empleado buscarEmpleadoPorLogin(String login) {
         if (login == null || cafeteria == null) {
             return null;

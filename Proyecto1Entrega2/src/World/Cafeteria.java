@@ -7,9 +7,11 @@ import Usuario.Empleado;
 import Usuario.Cocinero;
 import Usuario.Mesero;
 import Usuario.SugerenciaMenu;
+import Usuario.SolicitudTurno;
 import Usuario.DiaTurno;
 import ModuloVenta.GestorVentas;
 import ModuloVenta.Pasteleria;
+import ModuloVenta.ProductoComestible;
 import Torneo.GestorTorneo;
 // Cambio para venta
 import ModuloVenta.Venta;
@@ -32,6 +34,10 @@ public class Cafeteria {
     private GestorTorneo gestorTorneo;
     private List<Venta> ventas;
     private List<SugerenciaMenu> sugerencias = new ArrayList<>();
+    
+    // CAMBIO PROYECTO 3 - Listas necesarias para que el administrador gestione menú y solicitudes de turnos desde la GUI.
+    private List<ProductoComestible> menuCafeteria;
+    private List<SolicitudTurno> solicitudesTurno;
 
  // Constructor Privado, evita que alguien haga "new Cafeteria()" desde fuera
     private Cafeteria(int capacidadMax, String nombre, GestorUsuarios gu, GestorVentas gv) {
@@ -45,6 +51,10 @@ public class Cafeteria {
         this.historialPrestamos = new ArrayList<>();
         // Cambio para consola
         this.ventas = new ArrayList<>();
+        
+        // CAMBIO PROYECTO 3 - Inicialización de nuevas listas.
+        this.menuCafeteria = new ArrayList<>();
+        this.solicitudesTurno = new ArrayList<>();
     }
 
     // Metodos
@@ -256,4 +266,27 @@ public class Cafeteria {
 	public void setSugerencias(List<SugerenciaMenu> sugerencias) {
 	    this.sugerencias = sugerencias;
 	}
+	
+	// CAMBIO PROYECTO 3 - Getters/setters para menú y solicitudes de turnos usadas por los paneles admin.
+    public List<ProductoComestible> getMenuCafeteria() {
+        if (menuCafeteria == null) {
+            menuCafeteria = new ArrayList<>();
+        }
+        return menuCafeteria;
+    }
+
+    public void setMenuCafeteria(List<ProductoComestible> menuCafeteria) {
+        this.menuCafeteria = menuCafeteria;
+    }
+
+    public List<SolicitudTurno> getSolicitudesTurno() {
+        if (solicitudesTurno == null) {
+            solicitudesTurno = new ArrayList<>();
+        }
+        return solicitudesTurno;
+    }
+
+    public void setSolicitudesTurno(List<SolicitudTurno> solicitudesTurno) {
+        this.solicitudesTurno = solicitudesTurno;
+    }
 }

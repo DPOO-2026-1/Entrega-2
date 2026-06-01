@@ -166,7 +166,7 @@ public class PanelEmpleado extends JPanel {
         panelAlquiler.configurarContexto(cafeteria, empleado, persistencia);
         panelCompras.configurarContexto(cafeteria, empleado, persistencia);
         panelTorneos.configurarContexto(cafeteria, empleado, persistencia);
-        panelTurnos.configurarContexto(cafeteria, empleado);
+        panelTurnos.configurarContexto(cafeteria, empleado, persistencia);
         panelSugerir.configurarContexto(cafeteria, empleado, persistencia);
         panelFavoritos.configurarContexto(cafeteria, empleado, persistencia);
 

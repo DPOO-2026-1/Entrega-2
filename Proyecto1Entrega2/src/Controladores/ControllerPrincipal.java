@@ -70,6 +70,13 @@ public class ControllerPrincipal {
         // ya que tenemos muchas páginas
 
         this.controladorOpciones = new OpcionesController(vista, this);
+        
+        this.vista.setAccionGuardarAlCerrar(() -> {
+            if (this.persistencia != null && this.cafeteria != null) {
+                this.persistencia.guardarTodo(this.cafeteria);
+                System.out.println("Datos guardados automáticamente al cerrar la GUI.");
+            }
+        });
 
     }
 
