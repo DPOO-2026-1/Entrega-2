@@ -24,6 +24,9 @@ public class PanelEmpleado extends JPanel {
     private PanelTurnosEmpleado panelTurnos;
     private PanelSugerirMenu panelSugerir;
     private PanelFavoritos panelFavoritos;
+    private PanelCajaMesero panelCajaMesero;
+    private PanelEnsenarJuegosDificiles panelEnsenarJuegos;
+    private Empleado empleadoActual;
 
     private Runnable accionCerrarSesion;
 
@@ -40,6 +43,11 @@ public class PanelEmpleado extends JPanel {
         panelTurnos = new PanelTurnosEmpleado();
         panelSugerir = new PanelSugerirMenu();
         panelFavoritos = new PanelFavoritos();
+        // =====================================================
+        // CAMBIO NUEVO PROYECTO 3 - Instancia de paneles nuevos.
+        // =====================================================
+        panelCajaMesero = new PanelCajaMesero();
+        panelEnsenarJuegos = new PanelEnsenarJuegosDificiles();
 
         panelAlquiler.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
         panelCompras.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
@@ -47,6 +55,11 @@ public class PanelEmpleado extends JPanel {
         panelTurnos.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
         panelSugerir.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
         panelFavoritos.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        // =====================================================
+        // CAMBIO NUEVO PROYECTO 3 - Volver desde caja y enseñanza.
+        // =====================================================
+        panelCajaMesero.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
+        panelEnsenarJuegos.setAccionVolver(() -> layoutInterno.show(contenedor, "home"));
 
         contenedor.add(crearHome(), "home");
         contenedor.add(panelAlquiler, "alquiler");
@@ -55,6 +68,11 @@ public class PanelEmpleado extends JPanel {
         contenedor.add(panelTurnos, "turnos");
         contenedor.add(panelSugerir, "sugerir");
         contenedor.add(panelFavoritos, "favoritos");
+        // =====================================================
+        // CAMBIO NUEVO PROYECTO 3 - Cards nuevas para meseros.
+        // =====================================================
+        contenedor.add(panelCajaMesero, "caja");
+     	contenedor.add(panelEnsenarJuegos, "ensenar");
     }
 
     private JPanel crearHome() {
@@ -114,6 +132,17 @@ public class PanelEmpleado extends JPanel {
         JButton btnFavoritos = boton("Favoritos");
         btnFavoritos.setBounds(960, 510, 180, 50);
         panel.add(btnFavoritos);
+        
+		// =====================================================
+		// CAMBIO NUEVO PROYECTO 3 - Botones de funciones específicas de mesero.
+		// =====================================================
+		JButton btnCaja = boton("Caja Mesero");
+		btnCaja.setBounds(400, 590, 180, 45);
+		panel.add(btnCaja);
+		
+		JButton btnEnsenar = boton("Enseñar Juegos");
+		btnEnsenar.setBounds(680, 590, 180, 45);
+		panel.add(btnEnsenar);
 
         btnTorneos.addActionListener(e -> {
             panelTorneos.refrescarTabla();
@@ -143,6 +172,19 @@ public class PanelEmpleado extends JPanel {
             panelFavoritos.refrescar();
             layoutInterno.show(contenedor, "favoritos");
         });
+        
+	    // =====================================================
+	    // CAMBIO NUEVO PROYECTO 3 - Acciones de caja y enseñanza.
+	    // =====================================================
+	    btnCaja.addActionListener(e -> {
+	        panelCajaMesero.refrescar();
+	        layoutInterno.show(contenedor, "caja");
+	    });
+	
+	    btnEnsenar.addActionListener(e -> {
+	        panelEnsenarJuegos.refrescar();
+	        layoutInterno.show(contenedor, "ensenar");
+	    });
 
         btnCerrar.addActionListener(e -> {
             if (accionCerrarSesion != null) {
@@ -169,6 +211,11 @@ public class PanelEmpleado extends JPanel {
         panelTurnos.configurarContexto(cafeteria, empleado, persistencia);
         panelSugerir.configurarContexto(cafeteria, empleado, persistencia);
         panelFavoritos.configurarContexto(cafeteria, empleado, persistencia);
+        // =====================================================
+        // CAMBIO NUEVO PROYECTO 3 - Se pasan datos a los paneles nuevos.
+        // =====================================================
+        panelCajaMesero.configurarContexto(cafeteria, empleado, persistencia);
+        panelEnsenarJuegos.configurarContexto(cafeteria, empleado, persistencia);
 
         layoutInterno.show(contenedor, "home");
     }

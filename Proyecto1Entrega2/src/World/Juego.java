@@ -137,5 +137,10 @@ public class Juego {
 	public void setEsDificil(boolean esDificil) {
 		this.esDificil = esDificil;
 	}
+	
+	@Override
+	public String toString() {
+	    return nombre;
+	}
     
 }

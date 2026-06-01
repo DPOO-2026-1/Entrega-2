@@ -850,6 +850,44 @@ public class AdminController {
             Administrador admin = (Administrador) jefe.getUsuarioActual();
             admin.aprobarSugerenciaMenu(sugerencia);
 
+            // CAMBIO NUEVO PROYECTO 3 - Al aprobar una sugerencia,
+            // el administrador también puede convertirla en producto real del menú.
+            int opcion = JOptionPane.showConfirmDialog(
+                    vista,
+                    "¿Quieres agregar esta sugerencia como producto real del menú?\n\n" + sugerencia.getDescripcion(),
+                    "Convertir sugerencia en producto",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (opcion == JOptionPane.YES_OPTION) {
+                String nombre = JOptionPane.showInputDialog(vista, "Nombre del producto:", sugerencia.getDescripcion());
+
+                if (nombre != null && !nombre.trim().isEmpty()) {
+                    String precioTexto = JOptionPane.showInputDialog(vista, "Precio del producto:", "0");
+                    double precio = Double.parseDouble(precioTexto);
+
+                    Object[] tipos = new Object[]{"Bebida", "Pastelería"};
+                    Object tipo = JOptionPane.showInputDialog(
+                            vista,
+                            "Tipo de producto:",
+                            "Tipo",
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            tipos,
+                            tipos[0]
+                    );
+
+                    ProductoComestible producto;
+
+                    if ("Bebida".equals(tipo)) {
+                        producto = new Bebida(nombre.trim(), precio, false, false);
+                    } else {
+                        producto = new Pasteleria(nombre.trim(), precio, new ArrayList<String>());
+                    }
+
+                    admin.agregarProductoMenu(jefe.getCafeteria().getMenuCafeteria(), producto);
+                }
+            }
             guardarDatos();
             refrescarMenuYSugerencias();
 

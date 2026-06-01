@@ -233,9 +233,29 @@ public class PanelComprasCliente extends JPanel {
                                     copia));
                 }
             }
+
+            // CAMBIO NUEVO PROYECTO 3 - COMPRAS USAN EL MENÚ REAL
+            // Los productos agregados por el administrador aparecen
+            // aquí además de los productos quemados de respaldo.
+            if (cafeteria.getMenuCafeteria() != null) {
+                for (ProductoComestible producto : cafeteria.getMenuCafeteria()) {
+                    if (producto != null) {
+                        String tipo = producto instanceof Bebida ? "Bebida" : "Pastelería";
+
+                        productosDisponibles.add(
+                                new ProductoOpcion(
+                                        producto.getNombre() + " - " + tipo + " (Menú)",
+                                        producto,
+                                        producto.getPrecioBase(),
+                                        null,
+                                        null));
+                    }
+                }
+            }
         }
 
-        // Productos de cafetería de prueba para que la interfaz pueda operar aunque no exista todavía un catálogo persistido.
+        // Productos quemados de respaldo. Se mantienen para que la app opere
+        // incluso si el admin no ha agregado productos.
         productosDisponibles.add(new ProductoOpcion("Café - Bebida", new Bebida("Café", 6000, true, false), 6000, null, null));
         productosDisponibles.add(new ProductoOpcion("Gaseosa - Bebida", new Bebida("Gaseosa", 5000, false, false), 5000, null, null));
         productosDisponibles.add(new ProductoOpcion("Brownie - Pastelería", new Pasteleria("Brownie", 8000, new ArrayList<String>()), 8000, null, null));

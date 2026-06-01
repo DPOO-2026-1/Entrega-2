@@ -14,7 +14,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 
@@ -22,15 +21,16 @@ import ModuloVenta.Bebida;
 import ModuloVenta.CopiaVenta;
 import ModuloVenta.ItemVenta;
 import ModuloVenta.Pasteleria;
-import ModuloVenta.ProductoVendible;
 import ModuloVenta.ProductoComestible;
+import ModuloVenta.ProductoVendible;
 import ModuloVenta.Venta;
 import Persistencia.GestorPersistencia;
 import Usuario.Empleado;
+import Usuario.Mesero;
 import World.Cafeteria;
 import World.Juego;
 
-public class PanelComprasEmpleado extends JPanel {
+public class PanelCajaMesero extends JPanel {
 
     private Cafeteria cafeteria;
     private Empleado empleado;
@@ -38,28 +38,24 @@ public class PanelComprasEmpleado extends JPanel {
 
     private JComboBox<ProductoOpcion> comboProducto;
     private JSpinner spinnerCantidad;
-    private JTextField txtCodigoDescuento;
-
     private JTable tablaCarrito;
     private DefaultTableModel modeloCarrito;
-
     private JButton btnAgregar;
-    private JButton btnFinalizar;
+    private JButton btnRegistrarVenta;
     private JButton btnVolver;
-
     private JLabel lblEstado;
 
     private List<ItemVenta> carrito;
     private List<ProductoOpcion> productosDisponibles;
 
-    public PanelComprasEmpleado() {
+    public PanelCajaMesero() {
         setLayout(null);
         setBackground(EstiloUI.COLOR_FONDO_BEIGE);
 
         carrito = new ArrayList<ItemVenta>();
         productosDisponibles = new ArrayList<ProductoOpcion>();
 
-        JLabel titulo = new JLabel("  Board Game Cafe - Compras Empleado");
+        JLabel titulo = new JLabel("  Board Game Cafe - Caja Mesero");
         titulo.setOpaque(true);
         titulo.setBackground(EstiloUI.COLOR_BANNER_CAFE);
         titulo.setForeground(Color.WHITE);
@@ -67,99 +63,73 @@ public class PanelComprasEmpleado extends JPanel {
         titulo.setBounds(0, 0, 1280, 60);
         add(titulo);
 
-        JLabel lblCompra = seccion("Compra");
-        lblCompra.setBounds(75, 90, 150, 35);
-        add(lblCompra);
-
         JLabel lblProducto = etiqueta("Producto");
-        lblProducto.setBounds(120, 145, 80, 30);
+        lblProducto.setBounds(170, 130, 100, 30);
         add(lblProducto);
 
         comboProducto = new JComboBox<ProductoOpcion>();
         comboProducto.setBackground(EstiloUI.COLOR_COMPONENTE_CAFE);
         comboProducto.setForeground(Color.WHITE);
-        comboProducto.setBounds(215, 145, 210, 30);
+        comboProducto.setBounds(285, 130, 330, 30);
         add(comboProducto);
 
         JLabel lblCantidad = etiqueta("Cantidad");
-        lblCantidad.setBounds(455, 145, 90, 30);
+        lblCantidad.setBounds(650, 130, 100, 30);
         add(lblCantidad);
 
         spinnerCantidad = new JSpinner(new SpinnerNumberModel(1, 1, 99, 1));
-        spinnerCantidad.setBounds(560, 145, 90, 30);
+        spinnerCantidad.setBounds(765, 130, 90, 30);
         add(spinnerCantidad);
 
-        JLabel lblCodigo = etiqueta("Código Descuento");
-        lblCodigo.setBounds(680, 145, 150, 30);
-        add(lblCodigo);
-
-        txtCodigoDescuento = new JTextField();
-        txtCodigoDescuento.setEditable(false);
-        txtCodigoDescuento.setBounds(845, 145, 220, 30);
-        add(txtCodigoDescuento);
-
-        btnAgregar = boton("Agregar Item");
-        btnAgregar.setBounds(520, 205, 180, 45);
+        btnAgregar = boton("Agregar a caja");
+        btnAgregar.setBounds(900, 120, 170, 45);
         add(btnAgregar);
 
-        JLabel lblCarrito = seccion("Carrito");
-        lblCarrito.setBounds(180, 280, 170, 35);
-        add(lblCarrito);
-
-        modeloCarrito = new DefaultTableModel(
-                new Object[] {
-                        "Producto",
-                        "Cantidad",
-                        "Precio Unitario",
-                        "Subtotal",
-                        "Impuestos",
-                        "Descuento",
-                        "Total",
-                        "Puntos Ganados"
-                },
-                0) {
+        modeloCarrito = new DefaultTableModel(new Object[] {
+                "Producto", "Cantidad", "Precio Unitario", "Subtotal", "Impuestos", "Total"
+        }, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
 
-        tablaCarrito = tabla(modeloCarrito);
+        tablaCarrito = new JTable(modeloCarrito);
+        tablaCarrito.setBackground(EstiloUI.COLOR_COMPONENTE_CAFE);
+        tablaCarrito.setForeground(Color.WHITE);
+        tablaCarrito.setGridColor(EstiloUI.COLOR_TEXTO_OSCURO);
+        tablaCarrito.setRowHeight(35);
+        tablaCarrito.getTableHeader().setBackground(EstiloUI.COLOR_RECTANGULO_TEXTO);
+        tablaCarrito.getTableHeader().setForeground(Color.WHITE);
 
         JScrollPane scroll = new JScrollPane(tablaCarrito);
-        scroll.setBounds(140, 335, 920, 205);
+        scroll.setBounds(160, 210, 940, 280);
         add(scroll);
 
         btnVolver = boton("Volver");
         btnVolver.setBounds(20, 620, 110, 35);
         add(btnVolver);
 
-        btnFinalizar = boton("Finalizar compra");
-        btnFinalizar.setBounds(520, 595, 180, 45);
-        add(btnFinalizar);
+        btnRegistrarVenta = boton("Registrar venta en caja");
+        btnRegistrarVenta.setBounds(520, 535, 220, 50);
+        add(btnRegistrarVenta);
 
-        lblEstado = new JLabel("Estado: descuento empleado aplicado automáticamente.");
+        lblEstado = new JLabel("Estado: caja lista");
         lblEstado.setOpaque(true);
         lblEstado.setForeground(Color.WHITE);
         lblEstado.setBackground(EstiloUI.COLOR_COMPONENTE_CAFE);
-        lblEstado.setBounds(740, 595, 420, 45);
+        lblEstado.setBounds(780, 535, 360, 50);
         add(lblEstado);
 
         btnAgregar.addActionListener(e -> agregarItem());
-        btnFinalizar.addActionListener(e -> finalizarCompra());
+        btnRegistrarVenta.addActionListener(e -> registrarVentaCaja());
     }
 
-    private JLabel seccion(String texto) {
+    private JLabel etiqueta(String texto) {
         JLabel label = new JLabel(texto, JLabel.CENTER);
         label.setOpaque(true);
         label.setBackground(EstiloUI.COLOR_RECTANGULO_TEXTO);
         label.setForeground(Color.WHITE);
-        label.setFont(new Font("Arial", Font.BOLD, 14));
-        return label;
-    }
-
-    private JLabel etiqueta(String texto) {
-        JLabel label = seccion(texto);
         label.setFont(new Font("Arial", Font.BOLD, 12));
         return label;
     }
@@ -171,17 +141,6 @@ public class PanelComprasEmpleado extends JPanel {
         boton.setFocusPainted(false);
         boton.setBorder(BorderFactory.createEmptyBorder());
         return boton;
-    }
-
-    private JTable tabla(DefaultTableModel modelo) {
-        JTable tabla = new JTable(modelo);
-        tabla.setBackground(EstiloUI.COLOR_COMPONENTE_CAFE);
-        tabla.setForeground(Color.WHITE);
-        tabla.setGridColor(EstiloUI.COLOR_TEXTO_OSCURO);
-        tabla.setRowHeight(35);
-        tabla.getTableHeader().setBackground(EstiloUI.COLOR_RECTANGULO_TEXTO);
-        tabla.getTableHeader().setForeground(Color.WHITE);
-        return tabla;
     }
 
     public void configurarContexto(Cafeteria cafeteria, Empleado empleado, GestorPersistencia persistencia) {
@@ -207,9 +166,7 @@ public class PanelComprasEmpleado extends JPanel {
             comboProducto.addItem(opcion);
         }
 
-        if (empleado != null) {
-            txtCodigoDescuento.setText(empleado.getCodigoDescuento());
-        }
+        lblEstado.setText(empleado instanceof Mesero ? "Estado: caja lista" : "Estado: solo meseros pueden usar caja");
     }
 
     private void cargarProductos() {
@@ -218,41 +175,27 @@ public class PanelComprasEmpleado extends JPanel {
         if (cafeteria != null) {
             for (Juego juego : cafeteria.getJuegos()) {
                 for (CopiaVenta copia : juego.getCopiasParaVenta()) {
-                    productosDisponibles.add(
-                            new ProductoOpcion(
-                                    juego.getNombre() + " - Juego",
-                                    copia,
-                                    copia.getPrecioVenta(),
-                                    juego,
-                                    copia));
+                    productosDisponibles.add(new ProductoOpcion(juego.getNombre() + " - Juego", copia, copia.getPrecioVenta(), copia));
                 }
             }
 
-            // CAMBIO NUEVO PROYECTO 3 - COMPRAS USAN EL MENÚ REAL
-            // Los productos agregados por el administrador aparecen
-            // aquí además de los productos quemados de respaldo.
+            // =====================================================
+            // CAMBIO NUEVO PROYECTO 3 - CAJA USA EL MENÚ REAL DEL ADMIN.
+            // =====================================================
             if (cafeteria.getMenuCafeteria() != null) {
                 for (ProductoComestible producto : cafeteria.getMenuCafeteria()) {
-                    if (producto != null) {
-                        String tipo = producto instanceof Bebida ? "Bebida" : "Pastelería";
-
-                        productosDisponibles.add(
-                                new ProductoOpcion(
-                                        producto.getNombre() + " - " + tipo + " (Menú)",
-                                        producto,
-                                        producto.getPrecioBase(),
-                                        null,
-                                        null));
-                    }
+                    String tipo = producto instanceof Bebida ? "Bebida" : "Pastelería";
+                    productosDisponibles.add(new ProductoOpcion(producto.getNombre() + " - " + tipo + " (Menú)", producto, producto.getPrecioBase(), null));
                 }
             }
-
-        // Productos quemados de respaldo. Se mantienen para que la app opere
-        // incluso si el admin no ha agregado productos.
-        productosDisponibles.add(new ProductoOpcion("Café - Bebida", new Bebida("Café", 6000, true, false), 6000, null, null));
-        productosDisponibles.add(new ProductoOpcion("Gaseosa - Bebida", new Bebida("Gaseosa", 5000, false, false), 5000, null, null));
-        productosDisponibles.add(new ProductoOpcion("Brownie - Pastelería", new Pasteleria("Brownie", 8000, new ArrayList<String>()), 8000, null, null));
+            // =====================================================
+            // FIN CAMBIO NUEVO PROYECTO 3
+            // =====================================================
         }
+
+        productosDisponibles.add(new ProductoOpcion("Café - Bebida", new Bebida("Café", 6000, true, false), 6000, null));
+        productosDisponibles.add(new ProductoOpcion("Gaseosa - Bebida", new Bebida("Gaseosa", 5000, false, false), 5000, null));
+        productosDisponibles.add(new ProductoOpcion("Brownie - Pastelería", new Pasteleria("Brownie", 8000, new ArrayList<String>()), 8000, null));
     }
 
     private void agregarItem() {
@@ -266,41 +209,36 @@ public class PanelComprasEmpleado extends JPanel {
         int cantidad = (Integer) spinnerCantidad.getValue();
 
         if (opcion.copiaVenta != null && cantidad > 1) {
-            JOptionPane.showMessageDialog(this, "Cada copia de juego se agrega de a una unidad.");
             cantidad = 1;
             spinnerCantidad.setValue(1);
+            JOptionPane.showMessageDialog(this, "Cada copia de juego se vende de a una unidad.");
         }
 
         ItemVenta item = new ItemVenta(opcion.producto, cantidad, opcion.precio);
         carrito.add(item);
 
-        double subtotal = item.getSubtotalItem();
-        double impuestos = item.calcularImpuestoItem();
-        double descuentoEstimado = subtotal * 0.20;
-        double totalEstimado = subtotal - descuentoEstimado + impuestos;
-        int puntos = (int) (totalEstimado * 0.01);
-
         modeloCarrito.addRow(new Object[] {
                 opcion.nombre,
                 cantidad,
                 opcion.precio,
-                subtotal,
-                impuestos,
-                descuentoEstimado,
-                totalEstimado,
-                puntos
+                item.getSubtotalItem(),
+                item.calcularImpuestoItem(),
+                item.getSubtotalItem() + item.calcularImpuestoItem()
         });
-
-        lblEstado.setText("Estado: item agregado al carrito.");
     }
 
-    private void finalizarCompra() {
+    private void registrarVentaCaja() {
         try {
-            if (carrito.isEmpty()) {
-                throw new IllegalStateException("El carrito está vacío.");
+            if (!(empleado instanceof Mesero)) {
+                throw new IllegalStateException("Solo los meseros pueden registrar operaciones de caja.");
             }
 
-            Venta venta = empleado.realizarCompra(carrito);
+            if (carrito.isEmpty()) {
+                throw new IllegalStateException("El carrito de caja está vacío.");
+            }
+
+            Mesero mesero = (Mesero) empleado;
+            Venta venta = mesero.registrarVenta(carrito.toArray(new ItemVenta[0]), null);
 
             descontarCopiasVendidas();
 
@@ -308,11 +246,7 @@ public class PanelComprasEmpleado extends JPanel {
                 persistencia.guardarTodo(cafeteria);
             }
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Compra finalizada.\nTotal con descuento empleado: $" + venta.getTotal(),
-                    "Compra",
-                    JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Venta registrada en caja.\nTotal: $" + venta.getTotal());
 
             carrito.clear();
             modeloCarrito.setRowCount(0);
@@ -320,12 +254,7 @@ public class PanelComprasEmpleado extends JPanel {
 
         } catch (Exception ex) {
             lblEstado.setText("Estado: " + ex.getMessage());
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error caja", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -347,14 +276,12 @@ public class PanelComprasEmpleado extends JPanel {
         private String nombre;
         private ProductoVendible producto;
         private double precio;
-        private Juego juegoAsociado;
         private CopiaVenta copiaVenta;
 
-        public ProductoOpcion(String nombre, ProductoVendible producto, double precio, Juego juegoAsociado, CopiaVenta copiaVenta) {
+        public ProductoOpcion(String nombre, ProductoVendible producto, double precio, CopiaVenta copiaVenta) {
             this.nombre = nombre;
             this.producto = producto;
             this.precio = precio;
-            this.juegoAsociado = juegoAsociado;
             this.copiaVenta = copiaVenta;
         }
 

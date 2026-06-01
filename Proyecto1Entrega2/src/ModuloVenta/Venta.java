@@ -73,6 +73,10 @@ public class Venta {
 		this.propina = subtotal * porcentaje;
 	}
 	
+	public void setPropinaValor(double propina) {
+	    this.propina = propina;
+	}
+	
 	public double calcularTotal() {
 		double descuento = subtotal * (descuentoAplicado / 100.0); //dónde definimos si es 10 o 20%? depende del cliente o mesero
         this.total = subtotal - descuento + impuestos + propina;

@@ -1,10 +1,18 @@
 package Persistencia;
 
 import ModuloVenta.Venta;
+import ModuloVenta.ItemVenta;
+import ModuloVenta.ProductoVendible;
+import ModuloVenta.ProductoComestible;
+import ModuloVenta.Bebida;
+import ModuloVenta.Pasteleria;
+import ModuloVenta.CopiaVenta;
 import Usuario.Usuario;
 import Usuario.Cliente;
 import Usuario.Administrador;
 import Usuario.Mesero;
+import Usuario.SolicitudTurno;
+import Usuario.SugerenciaMenu;
 import Usuario.Cocinero;
 import Usuario.Empleado;
 import World.Cafeteria;
@@ -18,6 +26,8 @@ import Torneo.Torneo;
 import Torneo.TorneoAmistoso;
 import Torneo.TorneoCompetitivo;
 import Usuario.DiaSemana;
+import Usuario.DiaTurno;
+
 import java.util.Map;
 import World.Mesa; // CAMBIO: necesario porque Prestamo usa Mesa
 import World.CopiaPrestamo; // CAMBIO: necesario porque Prestamo guarda copias
@@ -29,6 +39,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -60,11 +71,22 @@ public class GestorPersistencia {
         // Primero los independientes, luego los dependientes
         List<Usuario> usuarios = cargarUsuarios();
         List<Juego> juegos = cargarJuegos();
+        // Cambios proyecto 3 PERSISTENCIA COMPLETA
+        // Se cargan turnos, capacitaciones, menú, sugerencias,
+        // solicitudes y ventas con items.
+        cargarTurnosEmpleados(usuarios);
+        cargarCapacitacionesMeseros(usuarios, juegos);
+        List<ProductoComestible> menu = cargarMenuCafeteria();
+        List<SugerenciaMenu> sugerencias = cargarSugerenciasMenu(usuarios);
+        List<SolicitudTurno> solicitudes = cargarSolicitudesTurno(usuarios);
         List<Prestamo> prestamos = cargarPrestamos(usuarios, juegos);
         List<Venta> ventas = cargarVentas(usuarios);
         
         cafe.setUsuarios(usuarios);
         cafe.setJuegos(juegos);
+        cafe.setMenuCafeteria(menu);
+        cafe.setSugerencias(sugerencias);
+        cafe.setSolicitudesTurno(solicitudes);
         cafe.setPrestamos(prestamos);
         cafe.setVentas(ventas);
         
@@ -80,6 +102,13 @@ public class GestorPersistencia {
         guardarPrestamos(cafe.getPrestamos());
         guardarVentas(cafe.getVentas());
         guardarGestorTorneo(cafe.getGestorTorneo());
+        
+        // Cambios proyecto 3
+        guardarMenuCafeteria(cafe.getMenuCafeteria());
+        guardarSugerenciasMenu(cafe.getSugerencias());
+        guardarSolicitudesTurno(cafe.getSolicitudesTurno());
+        guardarTurnosEmpleados(cafe.getUsuarios());
+        guardarCapacitacionesMeseros(cafe.getUsuarios());
     }
 
     // 2. MÉTODOS DE USUARIOS
@@ -464,38 +493,58 @@ public class GestorPersistencia {
                     continue;
                 }
 
-                // CAMBIO: uso split(";", -1) para no perder columnas vacías.
                 String[] p = linea.split(";", -1);
 
-                // Formato:
+                // =====================================================
+                // CAMBIO NUEVO PROYECTO 3 - PERSISTENCIA DETALLADA DE VENTAS
+                // Formato nuevo:
+                // idVenta;fecha;subtotal;impuestos;propina;total;descuento;puntos;loginUsuario;items
+                // Formato viejo compatible:
                 // idVenta;fecha;total;loginUsuario
-                if (p.length < 4) {
-                    System.err.println("Línea de venta inválida: " + linea);
-                    continue;
+                // =====================================================
+                try {
+                    if (p.length >= 10) {
+                        Venta v = new Venta();
+
+                        int idVenta = Integer.parseInt(p[0]);
+                        LocalDateTime fecha = LocalDateTime.parse(p[1], dtf);
+                        double subtotal = Double.parseDouble(p[2]);
+                        double impuestos = Double.parseDouble(p[3]);
+                        double propina = Double.parseDouble(p[4]);
+                        double total = Double.parseDouble(p[5]);
+                        double descuento = Double.parseDouble(p[6]);
+                        int puntos = Integer.parseInt(p[7]);
+                        Usuario realizadaPor = buscarUsuarioPorLogin(usuariosTotales, p[8]);
+                        ItemVenta[] items = deserializarItemsVenta(p[9]);
+
+                        v.setIdVenta(idVenta);
+                        v.setFecha(fecha);
+                        v.setSubtotal(subtotal);
+                        v.setImpuestos(impuestos);
+                        v.setPropinaValor(propina);
+                        v.setTotal(total);
+                        v.setDescuentoAplicado(descuento);
+                        v.setPuntosGenerados(puntos);
+                        v.setRealizadaPor(realizadaPor);
+                        v.setItemsVenta(items);
+
+                        ventas.add(v);
+                    } else if (p.length >= 4) {
+                        Venta v = new Venta();
+
+                        v.setIdVenta(Integer.parseInt(p[0]));
+                        v.setFecha(LocalDateTime.parse(p[1], dtf));
+                        v.setTotal(Double.parseDouble(p[2]));
+                        v.setRealizadaPor(buscarUsuarioPorLogin(usuariosTotales, p[3]));
+
+                        ventas.add(v);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Línea de venta inválida: " + linea + " -> " + e.getMessage());
                 }
-
-                int idVenta = Integer.parseInt(p[0]);
-
-                // CAMBIO: Venta usa LocalDateTime, no Date.
-                LocalDateTime fecha = LocalDateTime.parse(p[1], dtf);
-
-                double total = Double.parseDouble(p[2]);
-                String loginUsuario = p[3];
-
-                Usuario realizadaPor = buscarUsuarioPorLogin(usuariosTotales, loginUsuario);
-
-                if (realizadaPor != null) {
-                    // CAMBIO: tu clase Venta no tiene constructor con parámetros.
-                    // Por eso se crea vacía y se llena con setters.
-                    Venta v = new Venta();
-
-                    v.setIdVenta(idVenta);
-                    v.setFecha(fecha);
-                    v.setRealizadaPor(realizadaPor);
-                    v.setTotal(total);
-
-                    ventas.add(v);
-                }
+                // =====================================================
+                // FIN CAMBIO NUEVO PROYECTO 3
+                // =====================================================
             }
         } catch (Exception e) {
             System.err.println("Error leyendo ventas: " + e.getMessage());
@@ -507,16 +556,31 @@ public class GestorPersistencia {
     public void guardarVentas(List<Venta> lista) {
         File archivo = new File(rutaArchivos + "ventas.csv");
 
-        // CAMBIO: evita NullPointerException si rutaArchivos no tiene carpeta padre.
         if (archivo.getParentFile() != null) {
             archivo.getParentFile().mkdirs();
         }
 
         try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
+            int siguienteId = calcularSiguienteIdVenta(lista);
+
             for (Venta v : lista) {
+                if (v == null) {
+                    continue;
+                }
+
+                // =====================================================
+                // CAMBIO NUEVO PROYECTO 3 - PERSISTENCIA DETALLADA DE VENTAS
+                // Si la venta no tenía id, se le asigna uno.
+                // =====================================================
+                if (v.getIdVenta() <= 0) {
+                    v.setIdVenta(siguienteId++);
+                }
+                // =====================================================
+                // FIN CAMBIO NUEVO PROYECTO 3
+                // =====================================================
+
                 String fechaFormateada = "";
 
-                // CAMBIO: Venta.getFecha() retorna LocalDateTime.
                 if (v.getFecha() != null) {
                     fechaFormateada = v.getFecha().format(dtf);
                 }
@@ -527,19 +591,512 @@ public class GestorPersistencia {
                     loginUsuario = v.getRealizadaPor().getLogin();
                 }
 
-                double total = v.getTotal();
-
-                // Formato:
-                // idVenta;fecha;total;loginUsuario
+                // =====================================================
+                // CAMBIO NUEVO PROYECTO 3 - Ahora se guardan subtotal,
+                // impuestos, propina, descuento, puntos e items.
+                // =====================================================
                 pw.println(v.getIdVenta() + ";"
                         + fechaFormateada + ";"
-                        + total + ";"
-                        + loginUsuario);
+                        + v.getSubtotal() + ";"
+                        + v.getImpuestos() + ";"
+                        + v.getPropina() + ";"
+                        + v.getTotal() + ";"
+                        + v.getDescuentoAplicado() + ";"
+                        + v.getPuntosGenerados() + ";"
+                        + limpiarCampo(loginUsuario) + ";"
+                        + serializarItemsVenta(v.getItemsVenta()));
+                // =====================================================
+                // FIN CAMBIO NUEVO PROYECTO 3
+                // =====================================================
             }
         } catch (Exception e) {
             System.err.println("Error guardando ventas: " + e.getMessage());
         }
     }
+    
+    // =====================================================
+    		// CAMBIO NUEVO PROYECTO 3 - Helpers de ventas detalladas.
+    		// =====================================================
+    		private int calcularSiguienteIdVenta(List<Venta> lista) {
+    		    int max = 0;
+
+    		    if (lista != null) {
+    		        for (Venta v : lista) {
+    		            if (v != null && v.getIdVenta() > max) {
+    		                max = v.getIdVenta();
+    		            }
+    		        }
+    		    }
+
+    		    return max + 1;
+    		}
+
+    		private String serializarItemsVenta(ItemVenta[] items) {
+    		    if (items == null || items.length == 0) {
+    		        return "";
+    		    }
+
+    		    StringBuilder sb = new StringBuilder();
+
+    		    for (ItemVenta item : items) {
+    		        if (item == null || item.getProducto() == null) {
+    		            continue;
+    		        }
+
+    		        if (sb.length() > 0) {
+    		            sb.append("|");
+    		        }
+
+    		        ProductoVendible producto = item.getProducto();
+    		        String tipo = "OTRO";
+    		        String nombre = "Producto";
+
+    		        if (producto instanceof Bebida) {
+    		            tipo = "BEBIDA";
+    		            nombre = ((Bebida) producto).getNombre();
+    		        } else if (producto instanceof Pasteleria) {
+    		            tipo = "PASTELERIA";
+    		            nombre = ((Pasteleria) producto).getNombre();
+    		        } else if (producto instanceof CopiaVenta) {
+    		            tipo = "COPIA_VENTA";
+    		            nombre = ((CopiaVenta) producto).getIdUnico();
+    		        } else if (producto instanceof ProductoComestible) {
+    		            tipo = "COMESTIBLE";
+    		            nombre = ((ProductoComestible) producto).getNombre();
+    		        }
+
+    		        sb.append(limpiarItem(tipo)).append(",")
+    		                .append(limpiarItem(nombre)).append(",")
+    		                .append(item.getCantidad()).append(",")
+    		                .append(item.getPrecioUnitario());
+    		    }
+
+    		    return sb.toString();
+    		}
+
+    		private ItemVenta[] deserializarItemsVenta(String texto) {
+    		    if (texto == null || texto.trim().isEmpty()) {
+    		        return new ItemVenta[0];
+    		    }
+
+    		    List<ItemVenta> items = new ArrayList<>();
+    		    String[] partes = texto.split("\\|");
+
+    		    for (String parte : partes) {
+    		        try {
+    		            String[] p = parte.split(",", -1);
+
+    		            if (p.length < 4) {
+    		                continue;
+    		            }
+
+    		            String tipo = p[0];
+    		            String nombre = p[1];
+    		            int cantidad = Integer.parseInt(p[2]);
+    		            double precio = Double.parseDouble(p[3]);
+
+    		            ProductoVendible producto;
+
+    		            if ("BEBIDA".equals(tipo)) {
+    		                producto = new Bebida(nombre, precio, false, false);
+    		            } else if ("PASTELERIA".equals(tipo)) {
+    		                producto = new Pasteleria(nombre, precio, new ArrayList<String>());
+    		            } else if ("COPIA_VENTA".equals(tipo)) {
+    		                producto = new CopiaVenta(nombre, precio);
+    		            } else {
+    		                producto = new Bebida(nombre, precio, false, false);
+    		            }
+
+    		            items.add(new ItemVenta(producto, cantidad, precio));
+    		        } catch (Exception e) {
+    		            System.err.println("No se pudo leer item de venta: " + parte);
+    		        }
+    		    }
+
+    		    return items.toArray(new ItemVenta[0]);
+    		}
+
+    		private String limpiarItem(String texto) {
+    		    if (texto == null) {
+    		        return "";
+    		    }
+
+    		    return texto.replace(";", " ").replace("|", " ").replace(",", " ");
+    		}
+    		// =====================================================
+    		// FIN CAMBIO NUEVO PROYECTO 3
+    		// =====================================================
+    		
+    		// =====================================================
+    		// CAMBIO NUEVO PROYECTO 3 - PERSISTENCIA DE MENÚ, SUGERENCIAS,
+    		// SOLICITUDES DE TURNO, TURNOS Y CAPACITACIONES.
+    		// =====================================================
+    		public List<ProductoComestible> cargarMenuCafeteria() {
+    		    List<ProductoComestible> menu = new ArrayList<>();
+    		    File archivo = new File(rutaArchivos + "menu_cafeteria.csv");
+
+    		    if (!archivo.exists()) {
+    		        return menu;
+    		    }
+
+    		    try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+    		        String linea;
+
+    		        while ((linea = br.readLine()) != null) {
+    		            if (linea.trim().isEmpty()) {
+    		                continue;
+    		            }
+
+    		            String[] p = linea.split(";", -1);
+
+    		            if (p.length < 3) {
+    		                continue;
+    		            }
+
+    		            String tipo = p[0];
+    		            String nombre = p[1];
+    		            double precio = Double.parseDouble(p[2]);
+
+    		            if ("BEBIDA".equalsIgnoreCase(tipo)) {
+    		                boolean caliente = p.length >= 4 && Boolean.parseBoolean(p[3]);
+    		                boolean alcoholica = p.length >= 5 && Boolean.parseBoolean(p[4]);
+    		                menu.add(new Bebida(nombre, precio, caliente, alcoholica));
+    		            } else if ("PASTELERIA".equalsIgnoreCase(tipo)) {
+    		                ArrayList<String> alergenos = new ArrayList<>();
+
+    		                if (p.length >= 4 && !p[3].trim().isEmpty()) {
+    		                    alergenos.addAll(Arrays.asList(p[3].split(",")));
+    		                }
+
+    		                menu.add(new Pasteleria(nombre, precio, alergenos));
+    		            }
+    		        }
+    		    } catch (Exception e) {
+    		        System.err.println("Error leyendo menú de cafetería: " + e.getMessage());
+    		    }
+
+    		    return menu;
+    		}
+
+    		public void guardarMenuCafeteria(List<ProductoComestible> menu) {
+    		    File archivo = new File(rutaArchivos + "menu_cafeteria.csv");
+
+    		    if (archivo.getParentFile() != null) {
+    		        archivo.getParentFile().mkdirs();
+    		    }
+
+    		    try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
+    		        if (menu == null) {
+    		            return;
+    		        }
+
+    		        for (ProductoComestible producto : menu) {
+    		            if (producto == null) {
+    		                continue;
+    		            }
+
+    		            if (producto instanceof Bebida) {
+    		                Bebida b = (Bebida) producto;
+    		                pw.println("BEBIDA;" + limpiarCampo(b.getNombre()) + ";" + b.getPrecioBase() + ";"
+    		                        + b.isEsCaliente() + ";" + b.isEsAlcoholica());
+    		            } else if (producto instanceof Pasteleria) {
+    		                Pasteleria p = (Pasteleria) producto;
+    		                String alergenos = "";
+
+    		                if (p.getAlergenos() != null) {
+    		                    for (int i = 0; i < p.getAlergenos().size(); i++) {
+    		                        if (i > 0) {
+    		                            alergenos += ",";
+    		                        }
+
+    		                        alergenos += limpiarCampo(p.getAlergenos().get(i));
+    		                    }
+    		                }
+
+    		                pw.println("PASTELERIA;" + limpiarCampo(p.getNombre()) + ";" + p.getPrecioBase() + ";" + alergenos);
+    		            }
+    		        }
+    		    } catch (Exception e) {
+    		        System.err.println("Error guardando menú de cafetería: " + e.getMessage());
+    		    }
+    		}
+
+    		public List<SugerenciaMenu> cargarSugerenciasMenu(List<Usuario> usuarios) {
+    		    List<SugerenciaMenu> sugerencias = new ArrayList<>();
+    		    File archivo = new File(rutaArchivos + "sugerencias_menu.csv");
+
+    		    if (!archivo.exists()) {
+    		        return sugerencias;
+    		    }
+
+    		    try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+    		        String linea;
+
+    		        while ((linea = br.readLine()) != null) {
+    		            if (linea.trim().isEmpty()) {
+    		                continue;
+    		            }
+
+    		            String[] p = linea.split(";", -1);
+
+    		            if (p.length < 3) {
+    		                continue;
+    		            }
+
+    		            Usuario usuario = buscarUsuarioPorLogin(usuarios, p[2]);
+
+    		            if (usuario instanceof Empleado) {
+    		                sugerencias.add(new SugerenciaMenu(p[0], p[1], (Empleado) usuario));
+    		            }
+    		        }
+    		    } catch (Exception e) {
+    		        System.err.println("Error leyendo sugerencias de menú: " + e.getMessage());
+    		    }
+
+    		    return sugerencias;
+    		}
+
+    		public void guardarSugerenciasMenu(List<SugerenciaMenu> sugerencias) {
+    		    File archivo = new File(rutaArchivos + "sugerencias_menu.csv");
+
+    		    if (archivo.getParentFile() != null) {
+    		        archivo.getParentFile().mkdirs();
+    		    }
+
+    		    try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
+    		        if (sugerencias == null) {
+    		            return;
+    		        }
+
+    		        for (SugerenciaMenu sugerencia : sugerencias) {
+    		            if (sugerencia == null) {
+    		                continue;
+    		            }
+
+    		            String login = "";
+
+    		            if (sugerencia.getCreadoPor() != null) {
+    		                login = sugerencia.getCreadoPor().getLogin();
+    		            }
+
+    		            pw.println(limpiarCampo(sugerencia.getDescripcion()) + ";"
+    		                    + limpiarCampo(sugerencia.getEstado()) + ";"
+    		                    + limpiarCampo(login));
+    		        }
+    		    } catch (Exception e) {
+    		        System.err.println("Error guardando sugerencias de menú: " + e.getMessage());
+    		    }
+    		}
+
+    		public List<SolicitudTurno> cargarSolicitudesTurno(List<Usuario> usuarios) {
+    		    List<SolicitudTurno> solicitudes = new ArrayList<>();
+    		    File archivo = new File(rutaArchivos + "solicitudes_turno.csv");
+
+    		    if (!archivo.exists()) {
+    		        return solicitudes;
+    		    }
+
+    		    try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+    		        String linea;
+
+    		        while ((linea = br.readLine()) != null) {
+    		            if (linea.trim().isEmpty()) {
+    		                continue;
+    		            }
+
+    		            String[] p = linea.split(";", -1);
+
+    		            if (p.length < 4) {
+    		                continue;
+    		            }
+
+    		            Usuario usuario = buscarUsuarioPorLogin(usuarios, p[2]);
+
+    		            if (usuario instanceof Empleado) {
+    		                DiaSemana dia = DiaSemana.valueOf(p[0]);
+    		                String estado = p[1];
+    		                boolean intercambio = Boolean.parseBoolean(p[3]);
+    		                solicitudes.add(new SolicitudTurno(dia, estado, (Empleado) usuario, intercambio));
+    		            }
+    		        }
+    		    } catch (Exception e) {
+    		        System.err.println("Error leyendo solicitudes de turno: " + e.getMessage());
+    		    }
+
+    		    return solicitudes;
+    		}
+
+    		public void guardarSolicitudesTurno(List<SolicitudTurno> solicitudes) {
+    		    File archivo = new File(rutaArchivos + "solicitudes_turno.csv");
+
+    		    if (archivo.getParentFile() != null) {
+    		        archivo.getParentFile().mkdirs();
+    		    }
+
+    		    try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
+    		        if (solicitudes == null) {
+    		            return;
+    		        }
+
+    		        for (SolicitudTurno solicitud : solicitudes) {
+    		            if (solicitud == null) {
+    		                continue;
+    		            }
+
+    		            String login = "";
+
+    		            if (solicitud.getSolicitadoPor() != null) {
+    		                login = solicitud.getSolicitadoPor().getLogin();
+    		            }
+
+    		            pw.println(solicitud.getDia().name() + ";"
+    		                    + limpiarCampo(solicitud.getEstado()) + ";"
+    		                    + limpiarCampo(login) + ";"
+    		                    + solicitud.isEsIntercambio());
+    		        }
+    		    } catch (Exception e) {
+    		        System.err.println("Error guardando solicitudes de turno: " + e.getMessage());
+    		    }
+    		}
+
+    		public void cargarTurnosEmpleados(List<Usuario> usuarios) {
+    		    File archivo = new File(rutaArchivos + "turnos_empleados.csv");
+
+    		    if (!archivo.exists()) {
+    		        return;
+    		    }
+
+    		    try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+    		        String linea;
+
+    		        while ((linea = br.readLine()) != null) {
+    		            if (linea.trim().isEmpty()) {
+    		                continue;
+    		            }
+
+    		            String[] p = linea.split(";", -1);
+
+    		            if (p.length < 3) {
+    		                continue;
+    		            }
+
+    		            Usuario usuario = buscarUsuarioPorLogin(usuarios, p[0]);
+
+    		            if (usuario instanceof Empleado) {
+    		                Empleado empleado = (Empleado) usuario;
+    		                DiaSemana dia = DiaSemana.valueOf(p[1]);
+    		                boolean aprobado = Boolean.parseBoolean(p[2]);
+    		                empleado.consultarDiasAsignados().add(new DiaTurno(dia, aprobado));
+    		            }
+    		        }
+    		    } catch (Exception e) {
+    		        System.err.println("Error leyendo turnos de empleados: " + e.getMessage());
+    		    }
+    		}
+
+    		public void guardarTurnosEmpleados(List<Usuario> usuarios) {
+    		    File archivo = new File(rutaArchivos + "turnos_empleados.csv");
+
+    		    if (archivo.getParentFile() != null) {
+    		        archivo.getParentFile().mkdirs();
+    		    }
+
+    		    try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
+    		        if (usuarios == null) {
+    		            return;
+    		        }
+
+    		        for (Usuario usuario : usuarios) {
+    		            if (!(usuario instanceof Empleado)) {
+    		                continue;
+    		            }
+
+    		            Empleado empleado = (Empleado) usuario;
+
+    		            if (empleado.consultarDiasAsignados() == null) {
+    		                continue;
+    		            }
+
+    		            for (DiaTurno turno : empleado.consultarDiasAsignados()) {
+    		                if (turno != null && turno.getDia() != null) {
+    		                    pw.println(empleado.getLogin() + ";" + turno.getDia().name() + ";" + turno.isAprobado());
+    		                }
+    		            }
+    		        }
+    		    } catch (Exception e) {
+    		        System.err.println("Error guardando turnos de empleados: " + e.getMessage());
+    		    }
+    		}
+
+    		public void cargarCapacitacionesMeseros(List<Usuario> usuarios, List<Juego> juegos) {
+    		    File archivo = new File(rutaArchivos + "capacitaciones_meseros.csv");
+
+    		    if (!archivo.exists()) {
+    		        return;
+    		    }
+
+    		    try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+    		        String linea;
+
+    		        while ((linea = br.readLine()) != null) {
+    		            if (linea.trim().isEmpty()) {
+    		                continue;
+    		            }
+
+    		            String[] p = linea.split(";", -1);
+
+    		            if (p.length < 2) {
+    		                continue;
+    		            }
+
+    		            Usuario usuario = buscarUsuarioPorLogin(usuarios, p[0]);
+    		            Juego juego = buscarJuegoPorNombre(juegos, p[1]);
+
+    		            if (usuario instanceof Mesero && juego != null) {
+    		                ((Mesero) usuario).agregarJuegoConocido(juego);
+    		            }
+    		        }
+    		    } catch (Exception e) {
+    		        System.err.println("Error leyendo capacitaciones de meseros: " + e.getMessage());
+    		    }
+    		}
+
+    		public void guardarCapacitacionesMeseros(List<Usuario> usuarios) {
+    		    File archivo = new File(rutaArchivos + "capacitaciones_meseros.csv");
+
+    		    if (archivo.getParentFile() != null) {
+    		        archivo.getParentFile().mkdirs();
+    		    }
+
+    		    try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
+    		        if (usuarios == null) {
+    		            return;
+    		        }
+
+    		        for (Usuario usuario : usuarios) {
+    		            if (!(usuario instanceof Mesero)) {
+    		                continue;
+    		            }
+
+    		            Mesero mesero = (Mesero) usuario;
+
+    		            if (mesero.getJuegosConocidos() == null) {
+    		                continue;
+    		            }
+
+    		            for (Juego juego : mesero.getJuegosConocidos()) {
+    		                if (juego != null) {
+    		                    pw.println(limpiarCampo(mesero.getLogin()) + ";" + limpiarCampo(juego.getNombre()));
+    		                }
+    		            }
+    		        }
+    		    } catch (Exception e) {
+    		        System.err.println("Error guardando capacitaciones de meseros: " + e.getMessage());
+    		    }
+    		}
+    		// =====================================================
+    		// FIN CAMBIO NUEVO PROYECTO 3
+    		// =====================================================
     
     // PERSISTENCIA TORNEOS
     public GestorTorneo cargarGestorTorneo(List<Usuario> usuariosTotales, List<Juego> juegosTotales) {

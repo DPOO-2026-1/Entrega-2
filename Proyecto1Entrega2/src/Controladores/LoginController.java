@@ -3,6 +3,7 @@ package Controladores;
 import InterfazGrafica.PanelLogin;
 import InterfazGrafica.VentanaPrincipal;
 import Usuario.Usuario;
+import Usuario.Administrador;
 import Usuario.Cliente;
 import Usuario.Empleado;
 import javax.swing.JOptionPane;
@@ -45,11 +46,13 @@ public class LoginController {
                     String tipoUsuario = usuarioAutenticado.getClass().getSimpleName();
                     JOptionPane.showMessageDialog(vista, "Bienvenido de nuevo, " + usuarioAutenticado.getNombre() + ".", "Inicio de Sesión", JOptionPane.INFORMATION_MESSAGE);
                     
-                    if (tipoUsuario.equals("Administrador")) {
+                    if (usuarioAutenticado instanceof Administrador) {
                         jefe.moverseA("PanelAdmin");
-                    } else if (tipoUsuario.equals("Cliente")) {
-                        jefe.moverseA("PanelOpcionesCliente");
-                    } 
+                    } else if (usuarioAutenticado instanceof Cliente) {
+                        jefe.moverseA("PanelCliente");
+                    } else if (usuarioAutenticado instanceof Empleado) {
+                        jefe.moverseA("PanelEmpleado");
+                    }
                     // En consolas futuras se redirigirá a los páneles correspondientes según el rol
                     System.out.println("Usuario autenticado correctamente: " + usuarioAutenticado.getNombre() + " (" + usuarioAutenticado.getClass().getSimpleName() + ")");
                 } else {
